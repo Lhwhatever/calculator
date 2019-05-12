@@ -1,7 +1,9 @@
-#include <iostream>
-
 #ifndef PROGRAM_H
 #define PROGRAM_H
+
+
+#include <iostream>
+
 
 namespace cliOptions {
     std::ostream& ostream = std::cout;
@@ -13,5 +15,6 @@ namespace cliOptions {
     void returnHelp(char *programName);
     void returnIncorrectUsage(char *programName);
 }
+
 
 #endif
