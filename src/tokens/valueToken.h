@@ -16,8 +16,8 @@ enum class ValueType {
 };
 
 namespace Functionalities {
-    void add(ValueToken *valueTokens);
-    void subtract(ValueToken *valueTokens);
+    void add(ValueToken* valueTokens);
+    void subtract(ValueToken* valueTokens);
 }
 
 class ValueToken: public Token {
@@ -28,16 +28,17 @@ private:
 
 public:
     ValueToken(long data);
+    virtual ~ValueToken() override;
 
 public:
     virtual TokenType getTokenType() const override;
     long getIntegralData() const;
-    operator std::string() const {
-        return std::to_string(lData);
-    }
+    virtual std::string toString() const override;
 
-    friend void Functionalities::add(ValueToken *valueTokens);
-    friend void Functionalities::subtract(ValueToken *valueTokens);
+    friend std::ostream& operator<<(std::ostream& ostream, const ValueToken& valueToken);
+
+    friend void Functionalities::add(ValueToken* valueTokens);
+    friend void Functionalities::subtract(ValueToken* valueTokens);
 };
 
 

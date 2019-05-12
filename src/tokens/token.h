@@ -12,9 +12,14 @@ enum class TokenType {
 };
 
 class Token {
+public:
+    virtual ~Token() {};
 
+public:
     virtual TokenType getTokenType() const;
+    virtual std::string toString() const = 0;
 
+    friend std::ostream& operator<<(std::ostream& ostream, const Token& token);
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "input.h"
+#include "settings.h"
 #include "program.h"
 
 int main(int argc, char* argv[]) {
@@ -8,8 +9,9 @@ int main(int argc, char* argv[]) {
         std::cout << "Calculator application, command line.\n";
         cliOptions::returnVersion();
 
-        std::string expr { getNextExpr() };
-        std::cout << "You entered " << expr << "\n";
+        Environment env{};
+        env.tick();
+        std::cout << "End of Program";
     } else for(int i = 1; i < argc; i++) {
 
         using namespace cliOptions;
@@ -33,13 +35,19 @@ int main(int argc, char* argv[]) {
 namespace cliOptions {
     void returnVersion() {
         #ifdef VERSION_STRING
-        ostream << "Version " << VERSION_STRING << "\n";
+        ostream << "Version " << VERSION_STRING;
         #else
-        ostream << "Unknown version\n";
+        ostream << "Unknown version";
+        #endif
+
+        #ifdef DEBUG
+        ostream << " (debug)\n";
+        #else
+        ostream << "\n";
         #endif
     }
 
-    void returnHelp(char *programName) {
+    void returnHelp(char* programName) {
         ostream << "Usage: " << programName << " [options]\n"
                    "\n"
                    "Possible options: \n"
@@ -47,7 +55,7 @@ namespace cliOptions {
                    "--help, -h, -H        Show this help message.\n";
     }
 
-    void returnIncorrectUsage(char *programName) {
+    void returnIncorrectUsage(char* programName) {
         ostream << "Usage: " << programName << " [-v] [-h]\n"
                    "Run " << programName << " -h to see more help for this program.\n";
     }
