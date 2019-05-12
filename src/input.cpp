@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "h/input.h"
+#include "input.h"
 
 std::string getNextExpr() {
     

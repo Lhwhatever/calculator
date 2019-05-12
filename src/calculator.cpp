@@ -1,8 +1,7 @@
-#include <iostream>
 #include <cstring>
 
-#include "h/input.h"
-#include "h/program.h"
+#include "input.h"
+#include "program.h"
 
 int main(int argc, char* argv[]) {
     if(argc == 1) {
@@ -13,21 +12,19 @@ int main(int argc, char* argv[]) {
         std::cout << "You entered " << expr << "\n";
     } else for(int i = 1; i < argc; i++) {
 
-        const char TOKEN_VER[] = "version";
-        const char TOKEN_HELP[] = "help";
-
+        using namespace cliOptions;
 
         if(*argv[i] == '-') { // entered options
             if(*(++argv[i]) == '-') { // full word
                 ++argv[i];
 
-                if(!strcmp(argv[i], TOKEN_VER)) cliOptions::returnVersion();
-                if(!strcmp(argv[i], TOKEN_HELP)) cliOptions::returnHelp(argv[0]);
-            } else if(*argv[i] == 'v' || *argv[i] == 'V') cliOptions::returnVersion();
-            else if(*argv[i] == 'h' || *argv[i] == 'H') cliOptions::returnHelp(argv[0]);
-            else cliOptions::returnIncorrectUsage(argv[0]);
+                if(!strcmp(argv[i], TOKEN_VER)) returnVersion();
+                if(!strcmp(argv[i], TOKEN_HELP)) returnHelp(argv[0]);
+            } else if(*argv[i] == 'v' || *argv[i] == 'V') returnVersion();
+            else if(*argv[i] == 'h' || *argv[i] == 'H') returnHelp(argv[0]);
+            else returnIncorrectUsage(argv[0]);
         } // entered cmd line argument
-        else cliOptions::returnIncorrectUsage(argv[0]);
+        else returnIncorrectUsage(argv[0]);
     }
     
     return 0;
@@ -35,19 +32,23 @@ int main(int argc, char* argv[]) {
 
 namespace cliOptions {
     void returnVersion() {
-        std::cout << "Version " PROGRAM_VERSION;
+        #ifdef VERSION_STRING
+        ostream << "Version " << VERSION_STRING << "\n";
+        #else
+        ostream << "Unknown version\n";
+        #endif
     }
 
     void returnHelp(char *programName) {
-        std::cout << "Usage: " << programName << " [options]\n"
-                     "\n"
-                     "Possible options: \n"
-                     "--version, -v, -V     Show version of application.\n"
-                     "--help, -h, -H        Show this help message.\n";
+        ostream << "Usage: " << programName << " [options]\n"
+                   "\n"
+                   "Possible options: \n"
+                   "--version, -v, -V     Show version of application.\n"
+                   "--help, -h, -H        Show this help message.\n";
     }
 
     void returnIncorrectUsage(char *programName) {
-        std::cout << "Usage: " << programName << " [-v] [-h]\n"
-                     "Run " << programName << " -h to see more help for this program.\n";
+        ostream << "Usage: " << programName << " [-v] [-h]\n"
+                   "Run " << programName << " -h to see more help for this program.\n";
     }
 }
