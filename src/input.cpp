@@ -1,50 +1,100 @@
 #include "input.h"
+
+#include <vector>
+#include <sstream>
+
 #include "tokens/operatorToken.h"
 #include "settings.h"
 #include "strchop.h"
 
 
-Environment::Environment(Settings::ExprParsingMode exprParsingMode,
+namespace {
+    enum ParserLoopMode {
+        MODE_DEFAULT, MODE_INTEGER, MODE_IDENTIFIER, MODE_SYMBOL
+    };
+
+}
+
+
+Environment::Environment(settings::ExprParsingMode exprParsingMode,
         std::istream& istream, std::ostream& ostream)
     : exprParsingMode{exprParsingMode}, istream{istream}, ostream{ostream}, tokenQueueRPN() {
     
 }
 
-// TODO: Fix this
-void Environment::parseExpr(std::string& expr) {
-    if(exprParsingMode == Settings::RPN) {
-        for(std::string::iterator it = expr.begin(); it != expr.end(); ++it) {
-            char c = *it;
-            Token* nextToken;
+std::string Environment::getInput() {
+    std::string expr;
+    bool result;
+    ostream << input_prompt::GET_INPUT_TOKEN;
 
-            if(isNumeric(c)) {
-                // process digits
-                long nextVal = c - '0';
-                while(++it != expr.end()) {
-                    char c = *it;
-                    if(isNumeric(c)) nextVal = nextVal * 10 + (c - '0');
-                    else if(c == '_') continue; // treat underscores as digit separators
-                    else break;
-                }
-                nextToken = new ValueToken(nextVal);
-            } else if(isWhitespace(c)) {
-                // ignore whitespace
-            } else if(isAlphabetical(c)){
-                // check alphabetical identifiers
-            } else if(isSymbolic(c)) {
-                // check for symbolic operators
-                std::string opId(1, c);
-                while(++it != expr.end()) {
-                    char c = *it;
-                    if(isSymbolic(c)) opId.push_back(c);
-                    else break;
-                }
-                nextToken = OperatorToken::symbolOperators.at(opId);
-            }
-            tokenQueueRPN.push_back(nextToken);
-        }
+    while(true) {
+        std::string nextLine;
+        result = std::getline(istream, nextLine) ? true : false;
 
+        if(result) expr += nextLine;
+        else break;
+
+        if(nextLine.back() == '\\') { // continue on next line
+            expr.pop_back();
+            expr.push_back(' ');
+            ostream << input_prompt::INPUT_TOKEN_TABBED;
+        } else break;
     }
+    return expr;
+}
+
+void Environment::parseExpr(const std::string& expr) {
+    if(exprParsingMode == settings::RPN) {
+        ParserLoopMode loopMode{MODE_DEFAULT};
+        long dataInteger{0};
+        std::string symbol{};
+
+        const auto flushIntegers = [&]() {
+            tokenQueueRPN.push_back(new ValueToken{dataInteger});
+            dataInteger = 0;
+            loopMode = MODE_DEFAULT;
+        };
+
+        const auto flushSymbols = [&]() {
+            tokenQueueRPN.push_back(OperatorToken::symbolOperators.at(symbol));
+            symbol.clear();
+            loopMode = MODE_DEFAULT;
+        };
+        
+        for(auto it = expr.cbegin(), end = expr.cend(); it != end; ++it) {
+            auto c = *it;
+            
+            if(!loopMode) {
+                if(strchop::isNumeric(c)) loopMode = MODE_INTEGER;
+                else if(strchop::isSymbolic(c)) loopMode = MODE_SYMBOL;
+                else if(strchop::isWhitespace(c)) continue;
+            }
+
+            if(loopMode == MODE_INTEGER) {
+                if(strchop::isNumeric(c))
+                    dataInteger = dataInteger * 10 + (c - '0');
+                else if(c != '_') {
+                    flushIntegers();
+                    --it;
+                }
+                
+                continue;
+            }
+            
+            if(loopMode == MODE_SYMBOL) {
+                if(strchop::isSymbolic(c)) symbol.push_back(c);
+                else {
+                    flushSymbols();
+                    --it;
+                }
+
+                continue;
+            }
+       }
+
+       if(loopMode == MODE_INTEGER) flushIntegers();
+       else if(loopMode == MODE_SYMBOL) flushSymbols();
+   }
 
 
 }
@@ -52,7 +102,7 @@ void Environment::parseExpr(std::string& expr) {
 #ifdef DEBUG
 void Environment::printRPNQueue() {
     ostream << "RPN Queue: ";
-    int i = 0;
+    auto i{0};
     int size = tokenQueueRPN.size();
     ostream << size << " elements\n";
     while(i < size) {
@@ -65,24 +115,48 @@ void Environment::printRPNQueue() {
 }
 #endif
 
+// INCOMPLETE
+void Environment::runRPNQueue() {
+    std::vector<ValueToken> valueQueue{tokenQueueRPN.size()};
+
+    while(!tokenQueueRPN.empty()) {
+        auto token {tokenQueueRPN.front()};
+        tokenQueueRPN.pop_front();
+
+        // for value tokens
+        auto valueToken = dynamic_cast<ValueToken*>(token);
+        if(valueToken) {
+            valueQueue.push_back(*valueToken);
+            continue;
+        }
+
+        // for operator tokens
+        auto operatorToken = dynamic_cast<OperatorToken*>(token);
+        if(operatorToken) {
+            // syntax error: wrong number of value tokens
+            if(operatorToken->ARITY > valueQueue.size()) {
+                std::stringstream ss{"Syntax error\n"};
+                ss << "\toperator expected " << operatorToken->ARITY
+                    << " values but only " << valueQueue.size()
+                    << " were available.";
+                throw ss.str();
+            }
+        }
+    }
+}
+
 void Environment::tick() {
-    std::string expr;
-    ostream << GET_INPUT_TOKEN;
-    std::getline(istream, expr);
-
+    std::string expr{getInput()};
     parseExpr(expr);
-
-    #ifdef DEBUG
     printRPNQueue();
-    #endif
 }
 
 Environment::~Environment() {
     while(!tokenQueueRPN.empty()) {
-        Token* token {tokenQueueRPN.front()};
+        auto token {tokenQueueRPN.front()};
         tokenQueueRPN.pop_front();
-        if(token->getTokenType() == TokenType::VALUE) {
-            delete (ValueToken*) token;
-        }
+
+        auto valueToken = dynamic_cast<ValueToken*>(token);
+        if(valueToken) delete valueToken;
     }
 }

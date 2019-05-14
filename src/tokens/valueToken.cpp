@@ -1,6 +1,6 @@
-#include <string>
-
 #include "valueToken.h"
+
+#include <string>
 
 
 ValueToken::ValueToken(long data)

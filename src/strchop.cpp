@@ -1,3 +1,3 @@
 #include "strchop.h"
 
-std::set<char> CHARS::SYMBOLS{'+', '-', '*', '/', '^'};
+std::set<char> chars::SYMBOLS{'+', '-', '*', '/', '^'};

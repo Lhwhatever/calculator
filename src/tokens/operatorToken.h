@@ -1,5 +1,5 @@
-#ifndef OPERATOR_H
-#define OPERATOR_H
+#ifndef TOKENS_OPERATORTOKEN_H_
+#define TOKENS_OPERATORTOKEN_H_
 
 
 #include <functional>

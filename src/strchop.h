@@ -1,14 +1,19 @@
-#ifndef STRCHOP_H
-#define STRCHOP_H
+#ifndef STRCHOP_H_
+#define STRCHOP_H_
 
 #include <set>
 
 
-namespace CHARS {
-    extern std::set<char> SYMBOLS;
+namespace chars {
+extern std::set<char> SYMBOLS;
+
+namespace {
+auto symbolend{SYMBOLS.end()};
 }
 
+}
 
+namespace strchop {
 inline bool isNumeric(char c) {
     return c >= '0' && c <= '9';
 }
@@ -26,7 +31,8 @@ inline bool isWhitespace(char c) {
 }
 
 inline bool isSymbolic(char c) {
-    return CHARS::SYMBOLS.find(c) != CHARS::SYMBOLS.end();
+    return chars::SYMBOLS.find(c) != chars::symbolend;
+}
 }
 
 

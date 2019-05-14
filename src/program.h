@@ -1,5 +1,5 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef PROGRAM_H_
+#define PROGRAM_H_
 
 
 #include <iostream>
@@ -8,8 +8,8 @@
 namespace cliOptions {
     std::ostream& ostream = std::cout;
 
-    const char TOKEN_VER[] = "version";
-    const char TOKEN_HELP[] = "help";
+    constexpr char TOKEN_VER[] = "version";
+    constexpr char TOKEN_HELP[] = "help";
 
     void returnVersion();
     void returnHelp(char* programName);

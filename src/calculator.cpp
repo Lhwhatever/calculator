@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         Environment env{};
         env.tick();
         std::cout << "End of Program";
-    } else for(int i = 1; i < argc; i++) {
+    } else for(auto i{1}; i < argc; i++) {
 
         using namespace cliOptions;
 

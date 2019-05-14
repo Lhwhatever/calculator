@@ -1,10 +1,9 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#ifndef TOKENS_TOKEN_H_
+#define TOKENS_TOKEN_H_
 
 
 #include <iostream>
 #include <string>
-#include <vector>
 
 
 enum class TokenType {

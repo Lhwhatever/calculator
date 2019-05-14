@@ -1,5 +1,5 @@
-#ifndef VALUETOKEN_H
-#define VALUETOKEN_H
+#ifndef TOKENS_VALUETOKEN_H_
+#define TOKENS_VALUETOKEN_H_
 
 
 #include "token.h"
