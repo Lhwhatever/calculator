@@ -134,10 +134,12 @@ void Environment::runRPNQueue() {
         auto operatorToken = dynamic_cast<OperatorToken*>(token);
         if(operatorToken) {
             // syntax error: wrong number of value tokens
-            if(operatorToken->ARITY > valueQueue.size()) {
+            int queueSize = valueQueue.size();
+
+            if(operatorToken->ARITY > queueSize) {
                 std::stringstream ss{"Syntax error\n"};
                 ss << "\toperator expected " << operatorToken->ARITY
-                    << " values but only " << valueQueue.size()
+                    << " values but only " << queueSize
                     << " were available.";
                 throw ss.str();
             }
