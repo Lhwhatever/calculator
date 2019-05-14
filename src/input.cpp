@@ -117,7 +117,8 @@ void Environment::printRPNQueue() {
 
 // INCOMPLETE
 void Environment::runRPNQueue() {
-    std::vector<ValueToken> valueQueue{tokenQueueRPN.size()};
+    long tokenQueueSize = tokenQueueRPN.size();
+    std::vector<ValueToken> valueQueue{tokenQueueSize};
 
     while(!tokenQueueRPN.empty()) {
         auto token {tokenQueueRPN.front()};
