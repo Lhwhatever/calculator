@@ -5,7 +5,7 @@
 
 
 class IOutputtable {
-
+public:
     ~IOutputtable();
 
 protected:
