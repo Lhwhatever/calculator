@@ -5,13 +5,13 @@
 
 
 class IOutputtable {
-    protected:
-        virtual void outputTo(std::ostream& ostream);
+
+    ~IOutputtable();
+
+protected:
+    virtual void outputTo(std::ostream& ostream);
     
     friend std::ostream& operator<<(std::ostream&, IOutputtable);
 };
-
-
-std::ostream& operator<<(std::ostream&, IOutputtable);
 
 #endif

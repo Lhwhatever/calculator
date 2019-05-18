@@ -1,5 +1,9 @@
 #include "IOutputtable.h"
 
+IOutputtable::~IOutputtable() {
+    
+}
+
 void IOutputtable::outputTo(std::ostream& ostream) {
     throw "NotImplementedException: void outputTo(std::ostream&)";
 }
