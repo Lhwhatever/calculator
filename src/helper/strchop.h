@@ -1,5 +1,5 @@
-#ifndef STRCHOP_H_
-#define STRCHOP_H_
+#ifndef CALC__HELPER__STRCHOP_H_
+#define CALC__HELPER__STRCHOP_H_
 
 #include <set>
 
