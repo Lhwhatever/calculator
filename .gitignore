@@ -43,3 +43,6 @@ build/
 # Debug Files
 .debug_time
 .release_time
+
+# Stackdumps
+*.stackdump

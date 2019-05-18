@@ -1,24 +1,17 @@
-#ifndef TOKENS_TOKEN_H_
-#define TOKENS_TOKEN_H_
-
+#ifndef CALC__TOKENS__TOKEN__H_
+#define CALC__TOKENS__TOKEN__H_
 
 #include <iostream>
 #include <string>
 
+#include "../helper/IOutputtable.h"
 
-enum class TokenType {
-    UNDEFINED, VALUE, OPERATOR
-};
 
-class Token {
-public:
-    virtual ~Token() {};
+class Token: public IOutputtable {
 
 public:
-    virtual TokenType getTokenType() const;
     virtual std::string toString() const = 0;
-
-    friend std::ostream& operator<<(std::ostream& ostream, const Token& token);
+    operator std::string() const { return toString(); }
 };
 
 #endif

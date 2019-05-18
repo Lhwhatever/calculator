@@ -11,7 +11,7 @@ SRC_EXT = cpp
 SRC_PATH = .
 LIBS =
 
-COMPILE_FLAGS = -Wall -Wextra -g
+COMPILE_FLAGS = -Wall -Wextra -g -std=c++17
 RCOMPILE_FLAGS = -D NDEBUG
 DCOMPILE_FLAGS = -D DEBUG
 INCLUDES = -I $(SRC_PATH)

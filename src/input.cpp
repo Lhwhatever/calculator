@@ -5,7 +5,7 @@
 
 #include "tokens/operatorToken.h"
 #include "settings.h"
-#include "strchop.h"
+#include "helper/strchop.h"
 
 
 namespace {
@@ -48,6 +48,8 @@ void Environment::parseExpr(const std::string& expr) {
         ParserLoopMode loopMode{MODE_DEFAULT};
         long dataInteger{0};
         std::string symbol{};
+
+        #if 0
 
         const auto flushIntegers = [&]() {
             tokenQueueRPN.push_back(new ValueToken{dataInteger});
@@ -94,6 +96,7 @@ void Environment::parseExpr(const std::string& expr) {
 
        if(loopMode == MODE_INTEGER) flushIntegers();
        else if(loopMode == MODE_SYMBOL) flushSymbols();
+       #endif
    }
 
 
@@ -118,20 +121,14 @@ void Environment::printRPNQueue() {
 // INCOMPLETE
 void Environment::runRPNQueue() {
     long tokenQueueSize = tokenQueueRPN.size();
-    std::vector<ValueToken> valueQueue{tokenQueueSize};
 
     while(!tokenQueueRPN.empty()) {
         auto token {tokenQueueRPN.front()};
         tokenQueueRPN.pop_front();
 
         // for value tokens
-        auto valueToken = dynamic_cast<ValueToken*>(token);
-        if(valueToken) {
-            valueQueue.push_back(*valueToken);
-            continue;
-        }
-
-        // for operator tokens
+        #if 0
+        // for operator tokens 
         auto operatorToken = dynamic_cast<OperatorToken*>(token);
         if(operatorToken) {
             // syntax error: wrong number of value tokens
@@ -144,7 +141,9 @@ void Environment::runRPNQueue() {
                     << " were available.";
                 throw ss.str();
             }
+
         }
+        #endif
     }
 }
 
@@ -159,7 +158,9 @@ Environment::~Environment() {
         auto token {tokenQueueRPN.front()};
         tokenQueueRPN.pop_front();
 
+        #if 0
         auto valueToken = dynamic_cast<ValueToken*>(token);
         if(valueToken) delete valueToken;
+        #endif
     }
 }
