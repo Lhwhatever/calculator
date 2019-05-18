@@ -6,7 +6,7 @@
 
 class IOutputtable {
 public:
-    ~IOutputtable();
+    virtual ~IOutputtable() {};
 
 protected:
     virtual void outputTo(std::ostream& ostream);
