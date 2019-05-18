@@ -9,7 +9,7 @@ public:
     virtual ~IOutputtable() {};
 
 protected:
-    virtual void outputTo(std::ostream& ostream);
+    virtual void outputTo(std::ostream& ostream) const;
     
     friend std::ostream& operator<<(std::ostream&, IOutputtable);
 };
