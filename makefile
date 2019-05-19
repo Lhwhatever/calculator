@@ -95,12 +95,18 @@ dirs:
 	@mkdir -p $(BIN_PATH)
 
 .PHONY: clean
-clean:
+clean: clean-dumps
 	@echo "Deleting $(BIN_NAME) symlink"
 	@$(RM) $(BIN_NAME)
 	@echo "Deleting directories"
 	@$(RM) -r build
 	@$(RM) -r bin
+
+.PHONY: clean-dumps
+clean-dumps:
+	@echo "Deleting dumps"
+	@$(RM) *.core
+	@$(RM) *.stackdump
 
 all: $(BIN_PATH)/$(BIN_NAME)
 

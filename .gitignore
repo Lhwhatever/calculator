@@ -44,5 +44,6 @@ build/
 .debug_time
 .release_time
 
-# Stackdumps
+# Dumps
 *.stackdump
+*.core
