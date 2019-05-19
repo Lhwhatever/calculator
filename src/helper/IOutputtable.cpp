@@ -1,6 +1,5 @@
 #include "IOutputtable.h"
 
-
 void IOutputtable::outputTo(std::ostream& ostream) const {
     throw "NotImplementedException: void outputTo(std::ostream&)";
 }

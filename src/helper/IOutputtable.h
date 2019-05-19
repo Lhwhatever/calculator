@@ -3,14 +3,13 @@
 
 #include <iostream>
 
-
 class IOutputtable {
-public:
-    virtual ~IOutputtable() {};
+   public:
+    virtual ~IOutputtable(){};
 
-protected:
+   protected:
     virtual void outputTo(std::ostream& ostream) const;
-    
+
     friend std::ostream& operator<<(std::ostream&, IOutputtable);
 };
 
