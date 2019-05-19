@@ -7,26 +7,22 @@
 
 class OperatorToken : public Token {
    public:
+    const std::string REPR_PLAIN;
+    const std::string REPR_LATEX;
     const int ARITY;
-    const int ABS_PRED;  // absolute precedence
-    const std::string ID_LATEX;
-    const std::string ID_PLAIN;
+    const int PRECEDENCE;
 
-   protected:
-    OperatorToken(const int arity, const int absolutePrecedence,
-                  const std::string& identifierLaTeX,
-                  const std::string& identifierPlain = "");
+   public:
+    OperatorToken(const std::string& reprPlain, const std::string& reprLaTeX,
+                  const int arity, const int precedence);
 
    protected:
     virtual void outputTo(std::ostream& ostream) const override;
 
    public:
     virtual std::string toString() const override;
-    int getArity() const;
-    int getAbsolutePrecedence() const;
 
     OperatorToken& operator=(OperatorToken&) = delete;
-    virtual void outputTo(std::ostream&) const override;
 
     friend class Package;
 };

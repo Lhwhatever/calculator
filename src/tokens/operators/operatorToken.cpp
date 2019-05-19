@@ -1,20 +1,19 @@
 #include "operatorToken.h"
 
-OperatorToken::OperatorToken(const int arity, const int absPred,
-                             const std::string& idLaTeX,
-                             const std::string& idPlain)
-    : ARITY{arity}, ABS_PRED{absPred}, ID_LATEX{idLaTeX}, ID_PLAIN{idPlain} {}
+OperatorToken::OperatorToken(const std::string& reprPlain,
+                             const std::string& reprLaTeX, const int arity,
+                             const int precedence)
+    : REPR_PLAIN{reprPlain},
+      REPR_LATEX{reprLaTeX},
+      ARITY{arity},
+      PRECEDENCE{precedence} {}
 
 void OperatorToken::outputTo(std::ostream& ostream) const {
     ostream << toString();
 }
 
-int OperatorToken::getArity() const { return ARITY; }
+std::string OperatorToken::toString() const { return REPR_PLAIN; }
 
-int OperatorToken::getAbsolutePrecedence() const { return ABS_PRED; }
-
-std::string OperatorToken::toString() const { return ID_PLAIN; }
-
-void OperatorToken::outputTo(std::ostream& ostream) const {
-    ostream << toString();
-}
+// const OperatorToken OperatorToken::PLUS{"+", OperatorReprType::SYMBOL, 2, 1,
+// Functionalities::add}; const OperatorToken OperatorToken::MINUS{"-",
+// OperatorReprType::SYMBOL, 2, 1, Functionalities::subtract};
