@@ -3,22 +3,19 @@
 
 #include "../token.h"
 
+class ValueToken : public Token {
+   public:
+    enum class ValueType { CONST, VAR };
 
-class ValueToken: public Token {
-public:
-    enum class ValueType {
-        CONST, VAR
-    };
-
-public:
+   public:
     const ValueType VALUE_TYPE;
 
-public:
-    ValueToken(const ValueType valueType=ValueType::CONST): VALUE_TYPE{valueType} {};
+   public:
+    ValueToken(const ValueType valueType = ValueType::CONST)
+        : VALUE_TYPE{valueType} {};
 
     virtual bool isZero() const = 0;
     virtual bool isUnity() const = 0;
 };
-
 
 #endif

@@ -1,55 +1,59 @@
 #include "input.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
-#include "tokens/operatorToken.h"
-#include "settings.h"
 #include "helper/strchop.h"
-
+#include "settings.h"
+#include "tokens/operatorToken.h"
 
 namespace {
-    enum ParserLoopMode {
-        MODE_DEFAULT, MODE_INTEGER, MODE_IDENTIFIER, MODE_SYMBOL
-    };
-
+enum ParserLoopMode {
+    MODE_DEFAULT,
+    MODE_INTEGER,
+    MODE_IDENTIFIER,
+    MODE_SYMBOL
+};
 }
-
 
 Environment::Environment(settings::ExprParsingMode exprParsingMode,
-        std::istream& istream, std::ostream& ostream)
-    : exprParsingMode{exprParsingMode}, istream{istream}, ostream{ostream}, tokenQueueRPN() {
-    
-}
+                         std::istream& istream, std::ostream& ostream)
+    : exprParsingMode{exprParsingMode},
+      istream{istream},
+      ostream{ostream},
+      tokenQueueRPN() {}
 
 std::string Environment::getInput() {
     std::string expr;
     bool result;
     ostream << input_prompt::GET_INPUT_TOKEN;
 
-    while(true) {
+    while (true) {
         std::string nextLine;
         result = std::getline(istream, nextLine) ? true : false;
 
-        if(result) expr += nextLine;
-        else break;
+        if (result)
+            expr += nextLine;
+        else
+            break;
 
-        if(nextLine.back() == '\\') { // continue on next line
+        if (nextLine.back() == '\\') {  // continue on next line
             expr.pop_back();
             expr.push_back(' ');
             ostream << input_prompt::INPUT_TOKEN_TABBED;
-        } else break;
+        } else
+            break;
     }
     return expr;
 }
 
 void Environment::parseExpr(const std::string& expr) {
-    if(exprParsingMode == settings::RPN) {
+    if (exprParsingMode == settings::RPN) {
         ParserLoopMode loopMode{MODE_DEFAULT};
         long dataInteger{0};
         std::string symbol{};
 
-        #if 0
+#if 0
 
         const auto flushIntegers = [&]() {
             tokenQueueRPN.push_back(new ValueToken{dataInteger});
@@ -96,10 +100,8 @@ void Environment::parseExpr(const std::string& expr) {
 
        if(loopMode == MODE_INTEGER) flushIntegers();
        else if(loopMode == MODE_SYMBOL) flushSymbols();
-       #endif
-   }
-
-
+#endif
+    }
 }
 
 #ifdef DEBUG
@@ -108,8 +110,8 @@ void Environment::printRPNQueue() {
     auto i{0};
     int size = tokenQueueRPN.size();
     ostream << size << " elements\n";
-    while(i < size) {
-        Token* token {tokenQueueRPN.front()};
+    while (i < size) {
+        Token* token{tokenQueueRPN.front()};
         tokenQueueRPN.pop_front();
         ostream << i++ << "\t" << *token << "\n";
         tokenQueueRPN.push_back(token);
@@ -122,12 +124,12 @@ void Environment::printRPNQueue() {
 void Environment::runRPNQueue() {
     long tokenQueueSize = tokenQueueRPN.size();
 
-    while(!tokenQueueRPN.empty()) {
-        auto token {tokenQueueRPN.front()};
+    while (!tokenQueueRPN.empty()) {
+        auto token{tokenQueueRPN.front()};
         tokenQueueRPN.pop_front();
 
-        // for value tokens
-        #if 0
+// for value tokens
+#if 0
         // for operator tokens 
         auto operatorToken = dynamic_cast<OperatorToken*>(token);
         if(operatorToken) {
@@ -143,7 +145,7 @@ void Environment::runRPNQueue() {
             }
 
         }
-        #endif
+#endif
     }
 }
 
@@ -154,13 +156,13 @@ void Environment::tick() {
 }
 
 Environment::~Environment() {
-    while(!tokenQueueRPN.empty()) {
-        auto token {tokenQueueRPN.front()};
+    while (!tokenQueueRPN.empty()) {
+        auto token{tokenQueueRPN.front()};
         tokenQueueRPN.pop_front();
 
-        #if 0
+#if 0
         auto valueToken = dynamic_cast<ValueToken*>(token);
         if(valueToken) delete valueToken;
-        #endif
+#endif
     }
 }

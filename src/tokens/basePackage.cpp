@@ -6,7 +6,6 @@ Package Package::basePackage{"base"};
 
 namespace base_func {
 
-void add(ValueStack& valueStack) {
-}
+void add(ValueStack& valueStack) {}
 
-}
+}  // namespace base_func

@@ -7,21 +7,20 @@
 #include "operatorToken.h"
 #include "values/valueToken.h"
 
-
 using OperatorTokenSP = std::shared_ptr<OperatorToken>;
 using OperatorMap = std::map<std::string, OperatorTokenSP>;
 
 class Package {
-public:
+   public:
     const std::string NAME;
     OperatorMap latexMap;
     OperatorMap plainMap;
     static Package basePackage;
 
-public:
+   public:
     Package(std::string);
 
-public:
+   public:
     bool addOperator(const std::string& reprPlain, const std::string& reprLaTeX,
                      const int arity, const int precedence);
 };

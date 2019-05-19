@@ -3,23 +3,22 @@
 
 #include "valueToken.h"
 
-
-class IntegerToken: public ValueToken {
-private:
+class IntegerToken : public ValueToken {
+   private:
     long value;
 
-public:
+   public:
     static IntegerToken ZERO;
     static IntegerToken ONE;
 
-public:
+   public:
     IntegerToken(const long,
-                 const ValueToken::ValueType=ValueToken::ValueType::CONST);
+                 const ValueToken::ValueType = ValueToken::ValueType::CONST);
 
-protected:
+   protected:
     virtual void outputTo(std::ostream&) const override;
 
-public:
+   public:
     long getValue() const;
     void setValue(const long);
 
@@ -29,8 +28,6 @@ public:
     IntegerToken& operator=(const long);
     operator long();
     virtual std::string toString() const;
-
 };
-
 
 #endif
