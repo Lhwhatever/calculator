@@ -4,12 +4,12 @@
 #include <map>
 #include <memory>
 
-#include "../values/valueToken.h"
-#include "operatorToken.h"
+#include "../tokens/operators/operatorToken.h"
 
 using OperatorTokenSP = std::shared_ptr<OperatorToken>;
 using OperatorTokenWP = std::weak_ptr<OperatorToken>;
 using OperatorMap = std::map<std::string, OperatorTokenSP>;
+using Runnable = std::function<void()>;
 
 class Package {
    public:
@@ -20,15 +20,14 @@ class Package {
    private:
     OperatorMap latexMap;
     OperatorMap plainMap;
+    Runnable onInit;
+    Runnable onLoad;
 
    public:
-    Package(std::string);
+    Package(std::string, Runnable onInit = []() {}, Runnable onLoad = []() {});
 
    public:
-    bool addOperator(const std::string& reprPlain, const std::string& reprLaTeX,
-                     const int arity, const int precedence);
-    bool addOperator(const std::string& reprLaTeX, const int arity,
-                     const int precedence);
+    bool addOperator();
 
     OperatorTokenWP getOperatorByPlainRepr(const std::string&);
     OperatorTokenWP getOperatorByLaTeXRepr(const std::string&);

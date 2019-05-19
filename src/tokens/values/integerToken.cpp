@@ -19,7 +19,10 @@ const ValueToken::NumType& IntegerToken::getNumType() const {
     return IntegerToken::TYPE_INTEGER;
 }
 
-IntegerToken& IntegerToken::operator=(const long newValue) { value = newValue; }
+IntegerToken& IntegerToken::operator=(const long newValue) {
+    value = newValue;
+    return *this;
+}
 
 IntegerToken::operator long() { return value; }
 

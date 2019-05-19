@@ -14,7 +14,7 @@ class IntegerToken : public ValueToken {
 
    public:
     IntegerToken(const long,
-                 const ValueToken::ValueType = ValueToken::ValueType::CONST);
+                 const ValueToken::ValueType = ValueToken::ASSIGNABLE);
 
    protected:
     virtual void outputTo(std::ostream&) const override;

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "settings.h"
-#include "tokens/operatorToken.h"
+#include "tokens/operators/operatorToken.h"
 
 namespace input_prompt {
 const std::string GET_INPUT_TOKEN = "> ";

@@ -8,9 +8,9 @@ class IOutputtable {
     virtual ~IOutputtable(){};
 
    protected:
-    virtual void outputTo(std::ostream& ostream) const;
+    virtual void outputTo(std::ostream& ostream) const = 0;
 
-    friend std::ostream& operator<<(std::ostream&, IOutputtable);
+    friend std::ostream& operator<<(std::ostream&, IOutputtable&);
 };
 
 #endif

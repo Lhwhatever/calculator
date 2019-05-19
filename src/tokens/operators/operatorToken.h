@@ -2,23 +2,13 @@
 #define TOKENS__OPERATOR_TOKEN_H_
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 #include "../token.h"
-#include "../values/valueToken.h"
-
-using ValueTR = std::reference_wrapper<ValueToken>;
-using ValueStack = std::vector<ValueTR>;
-using NumTypePattern = std::vector<std::reference_wrapper<ValueToken::NumType>>;
-
-namespace {
-using Func = std::function<void(ValueStack)>;
-}
+#include "operation.h"
 
 class OperatorToken : public Token {
-   public:
-    struct Operation;
-
    private:
     const std::string ID_LATEX;
     const std::string ID_PLAIN;
@@ -36,7 +26,8 @@ class OperatorToken : public Token {
     std::string getLaTeXIdentifier() const;
     std::string getPlainIdentifier() const;
 
-    void registerOperation(const Func, const NumTypePattern, const int);
+    void bind(const Func, const NumTypePattern, const int);
+    void operate(ValueStack& valueStack);
 
     OperatorToken& operator=(OperatorToken&) = delete;
 

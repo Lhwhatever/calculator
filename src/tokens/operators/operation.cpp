@@ -1,9 +1,5 @@
 #include "operation.h"
 
-namespace {
-using Operation = OperatorToken::Operation;
-}
-
 Operation::Operation(const Func func, const NumTypePattern pat, const int precd)
     : PATTERN{pat}, operate{func}, PRECEDENCE{precd} {}
 

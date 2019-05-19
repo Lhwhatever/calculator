@@ -3,10 +3,6 @@
 #include <sstream>
 #include <vector>
 
-#include "helper/strchop.h"
-#include "settings.h"
-#include "tokens/operatorToken.h"
-
 namespace {
 enum ParserLoopMode {
     MODE_DEFAULT,

@@ -5,7 +5,7 @@
 
 class ValueToken : public Token {
    public:
-    enum class ValueType { CONST, VAR };
+    enum ValueType { ASSIGNABLE, VARIABLE, CONSTANT };
 
     class NumType : public IOutputtable {
        public:
@@ -25,7 +25,7 @@ class ValueToken : public Token {
     const ValueType VALUE_TYPE;
 
    protected:
-    ValueToken(const ValueType valueType = ValueType::CONST);
+    ValueToken(const ValueType valueType = ASSIGNABLE);
     virtual ~ValueToken();
 
    public:

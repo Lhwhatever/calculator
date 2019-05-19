@@ -12,8 +12,7 @@ std::string OperatorToken::toString() const { return getPlainIdentifier(); }
 std::string OperatorToken::getLaTeXIdentifier() const { return ID_LATEX; }
 std::string OperatorToken::getPlainIdentifier() const { return ID_PLAIN; }
 
-void OperatorToken::registerOperation(const Func func,
-                                      const NumTypePattern pattern,
-                                      const int precedence) {
+void OperatorToken::bind(const Func func, const NumTypePattern pattern,
+                         const int precedence) {
     operations.emplace_back(func, pattern, precedence);
 }
