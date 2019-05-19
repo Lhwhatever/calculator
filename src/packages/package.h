@@ -2,35 +2,44 @@
 #define TOKENS__PACKAGES__PACKAGE_H_
 
 #include <map>
-#include <memory>
 
 #include "../tokens/operators/operatorToken.h"
 
-using OperatorTokenSP = std::shared_ptr<OperatorToken>;
-using OperatorTokenWP = std::weak_ptr<OperatorToken>;
-using OperatorMap = std::map<std::string, OperatorTokenSP>;
-using Runnable = std::function<void()>;
+using OperatorTokenR = std::reference_wrapper<OperatorToken>;
+using OperatorMap = std::map<std::string, OperatorTokenR>;
+
+class Package;
+
+namespace {
+using byte = unsigned char;
+using Callback = std::function<void(Package)>;
+using PackageR = std::reference_wrapper<Package>;
+void pass(Package) {}
+}  // namespace
 
 class Package {
    public:
     const std::string NAME;
 
     static Package basePackage;
+    static std::map<const std::string, PackageR> packages;
 
    private:
     OperatorMap latexMap;
     OperatorMap plainMap;
-    Runnable onInit;
-    Runnable onLoad;
+    Callback onInit;
+    Callback onPreload;
+    Callback onLoad;
 
    public:
-    Package(std::string, Runnable onInit = []() {}, Runnable onLoad = []() {});
+    Package(std::string, Callback onInit = pass, Callback onPreload = pass,
+            Callback onLoad = pass);
 
    public:
-    bool addOperator();
+    byte addOperator(const OperatorToken&);
 
-    OperatorTokenWP getOperatorByPlainRepr(const std::string&);
-    OperatorTokenWP getOperatorByLaTeXRepr(const std::string&);
+    OperatorToken& getOperatorByPlainRepr(const std::string&);
+    OperatorToken& getOperatorByLaTeXRepr(const std::string&);
 };
 
 #endif

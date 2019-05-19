@@ -61,10 +61,16 @@ void subtract__int_int(ValueStack& values) {
 }
 }  // namespace ops
 
-void initBasePackage() {
+void initBasePackage(Package) {
     base_func::PLUS.bind(ops::add__int_int, pats::int_int, 4);
     base_func::MINUS.bind(ops::subtract__int_int, pats::int_int, 4);
 }
+
+void preloadBasePackage(Package p) {
+    p.addOperator(base_func::PLUS);
+    p.addOperator(base_func::MINUS);
+}
+
 }  // namespace
 
-Package Package::basePackage{"base", initBasePackage};
+Package Package::basePackage{"base", initBasePackage, preloadBasePackage};

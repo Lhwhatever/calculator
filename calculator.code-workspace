@@ -63,7 +63,8 @@
 			"sstream": "cpp",
 			"tuple": "cpp",
 			"utility": "cpp",
-			"memory": "cpp"
+			"memory": "cpp",
+			"cstddef": "cpp"
 		}
 	}
 }
