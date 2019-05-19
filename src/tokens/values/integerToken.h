@@ -10,6 +10,7 @@ class IntegerToken : public ValueToken {
    public:
     static IntegerToken ZERO;
     static IntegerToken ONE;
+    static const NumericType TYPE_INTEGER;
 
    public:
     IntegerToken(const long,
@@ -24,6 +25,8 @@ class IntegerToken : public ValueToken {
 
     virtual bool isZero() const override;
     virtual bool isUnity() const override;
+
+    virtual const NumericType& getNumericType() const override;
 
     IntegerToken& operator=(const long);
     operator long();

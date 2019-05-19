@@ -1,5 +1,7 @@
 #include "integerToken.h"
 
+const ValueToken::NumericType IntegerToken::TYPE_INTEGER{"integer"};
+
 IntegerToken::IntegerToken(const long value, const ValueType tokenType)
     : ValueToken{tokenType}, value{value} {}
 
@@ -12,6 +14,10 @@ void IntegerToken::setValue(long newValue) { value = newValue; }
 bool IntegerToken::isZero() const { return value == 0; }
 
 bool IntegerToken::isUnity() const { return value == 1; }
+
+const ValueToken::NumericType& IntegerToken::getNumericType() const {
+    return IntegerToken::TYPE_INTEGER;
+}
 
 IntegerToken& IntegerToken::operator=(const long newValue) { value = newValue; }
 
