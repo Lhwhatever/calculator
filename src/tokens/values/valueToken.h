@@ -7,14 +7,12 @@ class ValueToken : public Token {
    public:
     enum class ValueType { CONST, VAR };
 
-    class NumericType : public IOutputtable {
+    class NumType : public IOutputtable {
        public:
         const std::string DESCRIPT;
 
-        static const NumericType TYPE_UNDEFINED;
-
        public:
-        NumericType(std::string description) : DESCRIPT{description} {}
+        NumType(std::string description) : DESCRIPT{description} {}
 
        public:
         std::string getDescription() const;
@@ -26,9 +24,12 @@ class ValueToken : public Token {
    public:
     const ValueType VALUE_TYPE;
 
-   public:
+   protected:
     ValueToken(const ValueType valueType = ValueType::CONST);
-    virtual const NumericType const& getNumericType() const;
+    virtual ~ValueToken();
+
+   public:
+    virtual const NumType& getNumType() const = 0;
 
     virtual bool isZero() const = 0;
     virtual bool isUnity() const = 0;
