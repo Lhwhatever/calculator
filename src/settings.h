@@ -4,10 +4,16 @@
 #include <deque>
 #include <iostream>
 
-namespace settings {
-enum ExprParsingMode {
-    RPN  // reverse Polish notation
+struct Settings {
+    enum ExprParsingMode {
+        RPN  // reverse Polish notation
+    };
+
+    static const Settings DEFAULT;
+
+    const ExprParsingMode exprParsingMode;
+
+    Settings(const ExprParsingMode mode = RPN);
 };
-}
 
 #endif

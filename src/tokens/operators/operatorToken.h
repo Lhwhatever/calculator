@@ -10,21 +10,18 @@
 
 class OperatorToken : public Token {
    private:
-    const std::string ID_LATEX;
-    const std::string ID_PLAIN;
+    const std::string ID;
     std::vector<Operation> operations;
 
    public:
-    OperatorToken(const std::string& identifierLaTeX,
-                  const std::string& identifierPlain = "");
+    OperatorToken(const std::string& identifier);
 
    protected:
     virtual void outputTo(std::ostream& ostream) const override;
 
    public:
     virtual std::string toString() const override;
-    std::string getLaTeXIdentifier() const;
-    std::string getPlainIdentifier() const;
+    std::string getIdentifier() const;
 
     void bind(const Func, const NumTypePattern, const int);
     void operate(ValueStack& valueStack);

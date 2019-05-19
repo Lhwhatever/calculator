@@ -1,7 +1,7 @@
 #include <cstring>
 
-#include "input.h"
 #include "program.h"
+#include "session.h"
 #include "settings.h"
 
 int main(int argc, char* argv[]) {
@@ -9,8 +9,8 @@ int main(int argc, char* argv[]) {
         std::cout << "Calculator application, command line.\n";
         cliOptions::returnVersion();
 
-        Environment env{};
-        env.tick();
+        Session ss;
+        ss.rep();
         std::cout << "End of Program";
     } else
         for (auto i{1}; i < argc; i++) {

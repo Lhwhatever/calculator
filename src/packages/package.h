@@ -3,30 +3,29 @@
 
 #include <map>
 
+#include "../settings.h"
 #include "../tokens/operators/operatorToken.h"
+#include "defaultPackages.h"
 
-using OperatorTokenR = std::reference_wrapper<OperatorToken>;
-using OperatorMap = std::map<std::string, OperatorTokenR>;
+using OperatorTokenSP = std::shared_ptr<OperatorToken>;
+using OperatorMap = std::map<std::string, OperatorTokenSP>;
 
 class Package;
 
 namespace {
-using byte = unsigned char;
-using Callback = std::function<void(Package)>;
+using Callback = std::function<void(Package&, const Settings&)>;
 using PackageR = std::reference_wrapper<Package>;
-void pass(Package) {}
+void pass(Package&, const Settings&) {}
 }  // namespace
 
 class Package {
-   public:
+   private:
     const std::string NAME;
-
-    static Package basePackage;
     static std::map<const std::string, PackageR> packages;
+    static Package basePackage;
 
    private:
-    OperatorMap latexMap;
-    OperatorMap plainMap;
+    OperatorMap mapOper;
     Callback onInit;
     Callback onPreload;
     Callback onLoad;
@@ -36,10 +35,19 @@ class Package {
             Callback onLoad = pass);
 
    public:
-    byte addOperator(const OperatorToken&);
+    static bool add(Package&);
 
-    OperatorToken& getOperatorByPlainRepr(const std::string&);
-    OperatorToken& getOperatorByLaTeXRepr(const std::string&);
+    bool addOperator(OperatorTokenSP&);
+    std::string getName() const;
+
+    OperatorToken& getOperator(const std::string& identifier) const;
+
+    void init(const Settings&);
+    void preload(const Settings&);
+    void load(const Settings&);
+
+    friend class Session;
+    friend void default_packages::add();
 };
 
 #endif
