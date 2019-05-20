@@ -73,6 +73,7 @@ else
 endif
 	@$(START_TIME)
 	@$(MAKE) all --no-print-directory
+	@cp $(BIN_PATH)/$(BIN_NAME).exe $(BIN_PATH)/$(BIN_NAME)-v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH).exe
 	@echo -n "Total build time: "
 	@$(END_TIME)
 
