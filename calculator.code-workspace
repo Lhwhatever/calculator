@@ -7,7 +7,8 @@
 	"settings": {
 		"terminal.integrated.shell.windows": "C:\\cygwin64\\bin\\bash.exe",
 		"terminal.integrated.shellArgs.windows": [
-			"/bin/xhere", "/bin/bash"
+			"/bin/xhere",
+			"/bin/bash"
 		],
 		"shellLauncher.shells.windows": [
 			{
@@ -24,7 +25,10 @@
 			},
 			{
 				"shell": "C:\\cygwin64\\bin\\bash.exe",
-				"args": ["/bin/xhere", "/bin/bash"],
+				"args": [
+					"/bin/xhere",
+					"/bin/bash"
+				],
 				"label": "Cygwin bash"
 			}
 		],
