@@ -2,6 +2,7 @@
 #define CALC__EXCEPT__ARITY_MISMATCH_EXCEPTION_H_
 
 #include <exception>
+#include <string>
 
 class ArityMismatchException : public std::exception {
     const std::string ID;
