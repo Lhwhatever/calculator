@@ -12,13 +12,32 @@ Package::Package(std::string name, Callback onInit, Callback onPreload,
     // packages.insert_or_assign(NAME, std::ref(*this));
 }
 
-bool Package::addOperator(OperatorTokenSP& oper) {
-    auto [it, result] = mapOper.try_emplace(oper->getIdentifier(), oper);
-    return result;
+void Package::addOperator(OperatorTokenSP& oper) {
+    mapOper.emplace(oper->getIdentifier(), oper);
 }
 
-OperatorToken& Package::getOperator(const std::string& id) const {
-    return *(mapOper.at(id));
+bool Package::hasOperator(const std::string& id) const {
+    return mapOper.find(id) != mapOper.end();
+}
+
+bool Package::hasOperator(const std::string& id, int arity) const {
+    if (!hasOperator(id)) return false;
+
+    auto [it, end] = mapOper.equal_range(id);
+    while (it != end) {
+        if (it->second->ARITY == arity) return true;
+        ++it;
+    }
+    return false;
+}
+
+OperatorToken& Package::getOperator(const std::string& id, int arity) const {
+    auto [it, end] = mapOper.equal_range(id);
+    while (it != end) {
+        if (it->second->ARITY == arity) return *it->second;
+        ++it;
+    }
+    throw std::out_of_range("no such operator");
 }
 
 std::string Package::getName() const { return NAME; }

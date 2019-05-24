@@ -28,7 +28,7 @@ void flushIntegers(std::stringstream& ss, TokenDeque& deque) {
 }
 
 void flushSymbols(std::stringstream& ss, TokenDeque& deque, OperatorMap& map) {
-    auto op = map.at(ss.str());
+    auto op = map.find(ss.str())->second;
     deque.push_back(op);
     emptyStringStream(ss);
 }

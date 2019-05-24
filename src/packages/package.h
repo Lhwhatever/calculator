@@ -8,7 +8,7 @@
 #include "defaultPackages.h"
 
 using OperatorTokenSP = std::shared_ptr<OperatorToken>;
-using OperatorMap = std::map<std::string, OperatorTokenSP>;
+using OperatorMap = std::multimap<std::string, OperatorTokenSP>;
 
 class Package;
 
@@ -37,10 +37,12 @@ class Package {
    public:
     static bool add(Package&);
 
-    bool addOperator(OperatorTokenSP&);
+    void addOperator(OperatorTokenSP&);
     std::string getName() const;
 
-    OperatorToken& getOperator(const std::string& identifier) const;
+    bool hasOperator(const std::string& identifier) const;
+    bool hasOperator(const std::string& identifier, int arity) const;
+    OperatorToken& getOperator(const std::string& identifier, int arity) const;
 
     void init(const Settings&);
     void preload(const Settings&);
