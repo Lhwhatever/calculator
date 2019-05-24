@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
         cliOptions::returnVersion();
 
         Session ss;
-        ss.rep();
+        ss.repl();
         std::cout << "End of Program";
     } else
         for (auto i{1}; i < argc; i++) {

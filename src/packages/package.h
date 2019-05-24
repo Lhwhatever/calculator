@@ -42,6 +42,7 @@ class Package {
 
     bool hasOperator(const std::string& identifier) const;
     bool hasOperator(const std::string& identifier, unsigned int arity) const;
+    int count(const std::string& identifier) const;
     OperatorToken& getOperator(const std::string& identifier,
                                unsigned int arity) const;
 

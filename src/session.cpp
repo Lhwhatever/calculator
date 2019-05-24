@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "except/interruptException.h"
+#include "except/syntaxException.h"
 #include "helper/strchop.h"
 #include "packages/package.h"
 #include "tokens/values/integerToken.h"
@@ -28,15 +30,21 @@ void flushIntegers(std::stringstream& ss, TokenDeque& deque) {
 }
 
 void flushSymbols(std::stringstream& ss, TokenDeque& deque, OperatorMap& map) {
-    auto op = map.find(ss.str())->second;
+    auto s{ss.str()};
+    if (map.find(s) == map.end()) throw SyntaxException(s);
+    auto op{map.find(ss.str())->second};
     deque.push_back(op);
     emptyStringStream(ss);
 }
 }  // namespace
 
 Session::Session(Settings settings, std::istream& istream,
-                 std::ostream& ostream)
-    : settings{settings}, istream{istream}, ostream{ostream}, tokenQueue{} {
+                 std::ostream& ostream, std::ostream& errstream)
+    : settings{settings},
+      istream{istream},
+      ostream{ostream},
+      errstream{errstream},
+      tokenQueue{} {
     default_packages::add();
 
     for (auto it = Package::packages.begin(), end = Package::packages.end();
@@ -88,7 +96,14 @@ void Session::parseExpr(const std::string& expr) {
     ParserLoopMode loopMode{MODE_DEFAULT};
     std::stringstream ss;
 
-    for (auto it = expr.cbegin(), end = expr.cend(); it != end; ++it) {
+    auto it = expr.cbegin();
+    auto end = expr.cend();
+    if (*it == ':') {
+        auto next = it + 1;
+        if (next != end && *next == 'q') throw InterruptException();
+    }
+
+    for (; it != end; ++it) {
         char c{*it};
 
         if (!loopMode) {
@@ -182,9 +197,21 @@ void Session::displayResults(ValueStack& stack) const {
 }
 
 void Session::rep() {
-    parseExpr(getInput());
-    auto values = runQueue();
-    displayResults(values);
+    try {
+        parseExpr(getInput());
+        auto values = runQueue();
+        displayResults(values);
+    } catch (SyntaxException& e) {
+        errstream << e.what();
+    }
+}
+
+void Session::repl() {
+    while (true) try {
+            rep();
+        } catch (InterruptException) {
+            break;
+        }
 }
 
 #ifdef DEBUG

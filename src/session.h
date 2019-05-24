@@ -18,12 +18,14 @@ class Session {
     Settings settings;
     std::istream& istream;
     std::ostream& ostream;
+    std::ostream& errstream;
     TokenDeque tokenQueue;
     OperatorMap mapOper;
 
    public:
     Session(Settings = Settings::DEFAULT, std::istream& istream = std::cin,
-            std::ostream& ostream = std::cout);
+            std::ostream& ostream = std::cout,
+            std::ostream& errstream = std::cerr);
 
     ~Session();
 

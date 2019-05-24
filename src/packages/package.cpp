@@ -31,6 +31,8 @@ bool Package::hasOperator(const std::string& id, unsigned int arity) const {
     return false;
 }
 
+int Package::count(const std::string& id) const { return mapOper.count(id); }
+
 OperatorToken& Package::getOperator(const std::string& id,
                                     unsigned int arity) const {
     auto [it, end] = mapOper.equal_range(id);
