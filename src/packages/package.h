@@ -41,8 +41,9 @@ class Package {
     std::string getName() const;
 
     bool hasOperator(const std::string& identifier) const;
-    bool hasOperator(const std::string& identifier, int arity) const;
-    OperatorToken& getOperator(const std::string& identifier, int arity) const;
+    bool hasOperator(const std::string& identifier, unsigned int arity) const;
+    OperatorToken& getOperator(const std::string& identifier,
+                               unsigned int arity) const;
 
     void init(const Settings&);
     void preload(const Settings&);

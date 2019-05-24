@@ -92,9 +92,17 @@ void Session::parseExpr(const std::string& expr) {
         char c{*it};
 
         if (!loopMode) {
-            if (strchop::isNumeric(c))
-                loopMode = MODE_INTEGER;
-            else if (strchop::isSymbolic(c))
+            if (strchop::isNumeric(c)) loopMode = MODE_INTEGER;
+
+            // for negatives
+            else if (settings.exprSyntax == Settings::SYNTAX_RPN && c == '-') {
+                ss << c;
+                auto next = it + 1;
+                loopMode = (next != end && strchop::isNumeric(*next))
+                               ? MODE_INTEGER
+                               : MODE_SYMBOL;
+                continue;
+            } else if (strchop::isSymbolic(c))
                 loopMode = MODE_SYMBOL;
             else if (strchop::isWhitespace(c))
                 continue;

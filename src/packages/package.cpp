@@ -20,7 +20,7 @@ bool Package::hasOperator(const std::string& id) const {
     return mapOper.find(id) != mapOper.end();
 }
 
-bool Package::hasOperator(const std::string& id, int arity) const {
+bool Package::hasOperator(const std::string& id, unsigned int arity) const {
     if (!hasOperator(id)) return false;
 
     auto [it, end] = mapOper.equal_range(id);
@@ -31,7 +31,8 @@ bool Package::hasOperator(const std::string& id, int arity) const {
     return false;
 }
 
-OperatorToken& Package::getOperator(const std::string& id, int arity) const {
+OperatorToken& Package::getOperator(const std::string& id,
+                                    unsigned int arity) const {
     auto [it, end] = mapOper.equal_range(id);
     while (it != end) {
         if (it->second->ARITY == arity) return *it->second;
