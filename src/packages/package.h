@@ -13,7 +13,7 @@ using OperatorMap = std::map<std::string, OperatorTokenSP>;
 class Package;
 
 namespace {
-using Callback = std::function<void(Package&, const Settings&)>;
+using Callback = void (*)(Package&, const Settings&);
 using PackageR = std::reference_wrapper<Package>;
 void pass(Package&, const Settings&) {}
 }  // namespace

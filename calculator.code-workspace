@@ -68,7 +68,8 @@
 			"tuple": "cpp",
 			"utility": "cpp",
 			"memory": "cpp",
-			"cstddef": "cpp"
+			"cstddef": "cpp",
+			"complex": "cpp"
 		}
 	}
 }

@@ -3,8 +3,8 @@
 
 namespace base_func {
 
-auto plus = std::make_shared<OperatorToken>("+");
-auto minus = std::make_shared<OperatorToken>("-");
+auto plus = std::make_shared<OperatorToken>("+", 2, 4);
+auto minus = std::make_shared<OperatorToken>("-", 2, 4);
 
 }  // namespace base_func
 
@@ -62,8 +62,8 @@ void subtract__int_int(ValueStack& values) {
 }  // namespace ops
 
 void initBasePackage(Package&, const Settings&) {
-    base_func::plus->bind(ops::add__int_int, pats::int_int, 4);
-    base_func::minus->bind(ops::subtract__int_int, pats::int_int, 4);
+    base_func::plus->bind(pats::int_int, ops::add__int_int);
+    base_func::minus->bind(pats::int_int, ops::subtract__int_int);
 }
 
 void preloadBasePackage(Package& p, const Settings&) {

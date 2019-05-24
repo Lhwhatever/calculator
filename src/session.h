@@ -18,7 +18,7 @@ class Session {
     Settings settings;
     std::istream& istream;
     std::ostream& ostream;
-    TokenDeque tokenQueueRPN;
+    TokenDeque tokenQueue;
     OperatorMap mapOper;
 
    public:
@@ -32,7 +32,8 @@ class Session {
 
     std::string getInput();
     void parseExpr(const std::string& expr);
-    void runRPNQueue();
+    ValueStack runQueue();
+    void displayResults(ValueStack&) const;
 
     void rep();
     void repl();

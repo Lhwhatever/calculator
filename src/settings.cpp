@@ -1,5 +1,5 @@
 #include "settings.h"
 
-Settings::Settings(const ExprParsingMode mode) : exprParsingMode{RPN} {}
+Settings::Settings(const ExprSyntax syntax) : exprSyntax{syntax} {}
 
 const Settings Settings::DEFAULT{};

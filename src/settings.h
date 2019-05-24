@@ -5,15 +5,15 @@
 #include <iostream>
 
 struct Settings {
-    enum ExprParsingMode {
-        RPN  // reverse Polish notation
+    enum ExprSyntax {
+        SYNTAX_RPN  // reverse Polish notation
     };
 
     static const Settings DEFAULT;
 
-    const ExprParsingMode exprParsingMode;
+    const ExprSyntax exprSyntax;
 
-    Settings(const ExprParsingMode mode = RPN);
+    Settings(const ExprSyntax exprSyntax = SYNTAX_RPN);
 };
 
 #endif
