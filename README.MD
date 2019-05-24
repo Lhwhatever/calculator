@@ -2,7 +2,7 @@
 This project is intended to be a simple calculator application.
 
 ## Existing Features
-Currently, none.
+* Perform addition and subtraction on integers entered in reverse Polish notation.
 
 ## To-Do List
 ### Immediate
