@@ -1,5 +1,7 @@
 #include "rational.h"
 
+#include <sstream>
+
 #include "exceptions/divideByZeroException.h"
 #include "math.h"
 
@@ -49,6 +51,19 @@ int Rational::floor() const { return n / d; }
 float Rational::asFloat() const {
     float x{n};
     return x / d;
+}
+
+std::string Rational::asString() const {
+    std::ostringstream ss;
+    ss << n << '/' << d;
+    return ss.str();
+}
+
+Rational::operator std::string() const { return asString(); }
+
+std::ostream& operator<<(std::ostream& stream, const Rational& x) {
+    stream << "Rational(" << x.n << ", " << x.d << ')';
+    return stream;
 }
 
 bool operator==(const Rational& x, const Rational& y) {

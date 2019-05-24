@@ -20,9 +20,12 @@ struct Rational {
     Rational& operator=(int);
 
     operator double() const;
+    operator std::string() const;
+    friend std::ostream& operator<<(std::ostream&, const Rational&);
 
     int floor() const;
     float asFloat() const;
+    std::string asString() const;
     int getImproperNum() const;
     int getMixedNum() const;
     int getDen() const;
