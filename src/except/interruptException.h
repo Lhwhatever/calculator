@@ -5,8 +5,11 @@
 
 class InterruptException : public std::exception {
    public:
+    const bool FORCE;
+    InterruptException(bool force = false) : FORCE{force} {}
+
     virtual const char* what() const noexcept override {
-        return "interrupted by user";
+        return FORCE ? "forced interrupt by user" : "interrupted by user";
     }
 };
 

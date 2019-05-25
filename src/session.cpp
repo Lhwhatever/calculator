@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "except/interruptException.h"
+#include "except/noOperationException.h"
 #include "except/syntaxException.h"
 #include "helper/strchop.h"
 #include "packages/package.h"
@@ -68,42 +69,37 @@ void Session::loadPackage(const std::string& name) {
     mapOper.merge(p.mapOper);
 }
 
-std::string Session::getInput() {
+std::string Session::read() {
     std::ostringstream ss;
-    bool result;
+    std::string nextLine;
     ostream << input_prompt::GET_INPUT_TOKEN;
 
     while (true) {
-        std::string nextLine;
-        result = std::getline(istream, nextLine) ? true : false;
+        std::getline(istream, nextLine);
+        ss << nextLine;
 
-        if (result)
-            ss << nextLine;
-        else
-            break;
+        if (nextLine.back() != '\\') break;
 
-        if (nextLine.back() == '\\') {  // continue on next line
-            ss.seekp(-1, std::ios_base::cur);
-            ss << " ";
-            ostream << input_prompt::INPUT_TOKEN_TABBED;
-        } else
-            break;
+        // continue with next line
+        ss.seekp(-1, std::ios_base::cur);
+        ss << " ";
+        ostream << input_prompt::INPUT_TOKEN_TABBED;
     }
+
     return ss.str();
 }
 
-void Session::parseExpr(const std::string& expr) {
+void Session::tokenize(const std::string& expr) {
     ParserLoopMode loopMode{MODE_DEFAULT};
     std::stringstream ss;
 
     auto it = expr.cbegin();
-    auto end = expr.cend();
     if (*it == ':') {
-        auto next = it + 1;
-        if (next != end && *next == 'q') throw InterruptException();
+        if (expr == ":q") throw InterruptException();
+        if (expr == ":q!") throw InterruptException(true);
     }
 
-    for (; it != end; ++it) {
+    for (auto end = expr.cend(); it != end; ++it) {
         char c{*it};
 
         if (!loopMode) {
@@ -153,7 +149,7 @@ void Session::parseExpr(const std::string& expr) {
         flushSymbols(ss, tokenQueue, mapOper);
 }
 
-ValueStack Session::runQueue() {
+ValueStack Session::evaluateTokens() {
     TokenDeque queue;
     ValueStack values;
     if (settings.exprSyntax == Settings::SYNTAX_RPN) {
@@ -175,6 +171,7 @@ ValueStack Session::runQueue() {
         auto oper{std::dynamic_pointer_cast<OperatorToken>(token)};
         if (oper) {
             oper->operate(values);
+            ostream.flush();
             continue;
         }
     }
@@ -189,6 +186,11 @@ void Session::displayResults(ValueStack& stack) const {
         return;
     }
 
+    if (settings.exprSyntax != Settings::SYNTAX_RPN) {
+        errstream << "Syntax error: more arguments than required by operators.";
+        return;
+    }
+
     ostream << '(' << *stack[0];
     for (auto it = ++(stack.cbegin()), end = stack.cend(); it != end; ++it) {
         ostream << ", " << **it;
@@ -198,19 +200,34 @@ void Session::displayResults(ValueStack& stack) const {
 
 void Session::rep() {
     try {
-        parseExpr(getInput());
-        auto values = runQueue();
+        auto x{read()};
+        tokenize(x);
+        auto values = evaluateTokens();
         displayResults(values);
     } catch (SyntaxException& e) {
+        ostream << "error";
+        errstream << e.what();
+    } catch (NoOperationException& e) {
+        ostream << "error1";
         errstream << e.what();
     }
 }
 
 void Session::repl() {
+    ostream << "Enter :q to leave.\n";
     while (true) try {
             rep();
-        } catch (InterruptException) {
-            break;
+        } catch (InterruptException& e) {
+            if (e.FORCE) break;
+            std::string result;
+            while (true) {
+                ostream << "Are you sure you want to leave? (y/n) ";
+                std::getline(istream, result);
+                if (result == "y" || result == "n" || result == "Y" ||
+                    result == "N")
+                    break;
+            }
+            if (result == "y" || result == "Y") break;
         }
 }
 

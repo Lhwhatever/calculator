@@ -32,9 +32,9 @@ class Session {
    public:
     void loadPackage(const std::string& name);
 
-    std::string getInput();
-    void parseExpr(const std::string& expr);
-    ValueStack runQueue();
+    std::string read();
+    void tokenize(const std::string& expr);
+    ValueStack evaluateTokens();
     void displayResults(ValueStack&) const;
 
     void rep();
