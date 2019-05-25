@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "io/oStreamHandler.h"
 #include "packages/package.h"
 #include "settings.h"
 
@@ -17,7 +18,7 @@ class Session {
    private:
     Settings settings;
     std::istream& istream;
-    std::ostream& ostream;
+    OStreamHandler ostream;
     std::ostream& errstream;
     TokenDeque tokenQueue;
     OperatorMap mapOper;

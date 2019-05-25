@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "except/arityMismatchException.h"
 #include "except/interruptException.h"
 #include "except/noOperationException.h"
 #include "except/syntaxException.h"
@@ -43,7 +44,7 @@ Session::Session(Settings settings, std::istream& istream,
                  std::ostream& ostream, std::ostream& errstream)
     : settings{settings},
       istream{istream},
-      ostream{ostream},
+      ostream{OStreamHandler{settings, ostream, IOMODE_STD}},
       errstream{errstream},
       tokenQueue{} {
     default_packages::add();
@@ -171,7 +172,6 @@ ValueStack Session::evaluateTokens() {
         auto oper{std::dynamic_pointer_cast<OperatorToken>(token)};
         if (oper) {
             oper->operate(values);
-            ostream.flush();
             continue;
         }
     }
@@ -182,7 +182,7 @@ ValueStack Session::evaluateTokens() {
 void Session::displayResults(ValueStack& stack) const {
     if (stack.size() == 0) return;
     if (stack.size() == 1) {
-        ostream << *stack[0] << '\n';
+        ostream << *stack[0];
         return;
     }
 
@@ -199,18 +199,27 @@ void Session::displayResults(ValueStack& stack) const {
 }
 
 void Session::rep() {
+    bool fail{true};
+
     try {
         auto x{read()};
         tokenize(x);
         auto values = evaluateTokens();
         displayResults(values);
+        fail = true;
+    } catch (ArityMismatchException& e) {
+        errstream << "[Error]<Syntax/ArityMismatch> " << e.what();
     } catch (SyntaxException& e) {
-        ostream << "error";
-        errstream << e.what();
+        errstream << "[Error]<Syntax> " << e.what();
     } catch (NoOperationException& e) {
-        ostream << "error1";
-        errstream << e.what();
+        errstream << "[Error]<No Operation> " << e.what();
+    } catch (InterruptException& e) {
+        throw;
+    } catch (std::exception& e) {
+        errstream << "[Error] " << e.what();
     }
+
+    if (fail) errstream << '\n';
 }
 
 void Session::repl() {
@@ -227,7 +236,10 @@ void Session::repl() {
                     result == "N")
                     break;
             }
-            if (result == "y" || result == "Y") break;
+            if (result == "y" || result == "Y") {
+                ostream << "To skip confirmation next time, use :q! instead.\n";
+                break;
+            }
         }
 }
 
