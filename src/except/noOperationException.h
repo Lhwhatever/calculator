@@ -4,14 +4,9 @@
 #include <exception>
 #include <string>
 
-class NoOperationException : public std::exception {
-    const std::string MSG;
-
+class NoOperationException : public SimpleStringException {
    public:
-    NoOperationException(std::string msg);
-    ~NoOperationException();
-
-    virtual const char* what() const noexcept override;
+    NoOperationException(std::string msg) : SimpleStringException{msg} {}
 };
 
 #endif

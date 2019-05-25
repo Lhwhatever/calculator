@@ -1,16 +1,12 @@
 #ifndef CALC__EXCEPT__SYNTAX_EXCEPTION_H_
 #define CALC__EXCEPT__SYNTAX_EXCEPTION_H_
 
-#include <exception>
-#include <string>
+#include "simpleStringException.h"
 
-class SyntaxException : public std::exception {
-    const std::string STR;
-
+class SyntaxException : public SimpleStringException {
    public:
-    SyntaxException(std::string str);
-
-    virtual const char* what() const noexcept override;
+    SyntaxException(std::string str = "")
+        : SimpleStringException{"unexpected token " + str} {};
 };
 
 #endif
