@@ -19,8 +19,9 @@ const OStreamHandler& OStreamHandler::operator<<(
         std::string str{integerToken->toString()};
 
         if (SETTINGS.digitSep != "" && SETTINGS.digitSepInterval != 0) {
-            for (int i = str.size() - SETTINGS.digitSepInterval; i > 0;
-                 i -= SETTINGS.digitSepInterval)
+            for (int i = str.size() - SETTINGS.digitSepInterval,
+                     end = integerToken->getValue() < 0 ? 1 : 0;
+                 i > end; i -= SETTINGS.digitSepInterval)
                 str.insert(i, SETTINGS.digitSep);
         }
 
