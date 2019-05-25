@@ -15,15 +15,19 @@ using NumTypePattern = std::vector<NumTypeR>;
 using OperationMap = std::unordered_map<long, const Operation>;
 
 class OperatorToken : public Token {
+   public:
+    enum Associativity { LEFT_ASSOC, RIGHT_ASSOC };
+
    private:
     const std::string ID;
     const unsigned int ARITY;
     const int PRECD;
+    const Associativity ASSOC;
     OperationMap operations;
 
    public:
     OperatorToken(const std::string& identifier, unsigned int arity,
-                  int precedence);
+                  int precedence, Associativity assoc = LEFT_ASSOC);
 
    protected:
     virtual void outputTo(std::ostream& ostream) const override;
@@ -33,6 +37,9 @@ class OperatorToken : public Token {
 
     virtual std::string toString() const override;
     std::string getIdentifier() const;
+    unsigned int getArity() const;
+    int getPrecedence() const;
+    Associativity getAssociativity() const;
 
     void bind(const NumTypePattern&, const Operation&);
     void operate(ValueStack& valueStack);

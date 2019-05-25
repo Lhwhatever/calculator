@@ -6,8 +6,8 @@
 #include "../../except/noOperationException.h"
 
 OperatorToken::OperatorToken(const std::string& id, unsigned int arity,
-                             int precd)
-    : ID{id}, ARITY{arity}, PRECD{precd}, operations{} {}
+                             int precd, OperatorToken::Associativity assoc)
+    : ID{id}, ARITY{arity}, PRECD{precd}, ASSOC{assoc}, operations{} {}
 
 void OperatorToken::outputTo(std::ostream& ostream) const {
     ostream << toString();
@@ -15,6 +15,11 @@ void OperatorToken::outputTo(std::ostream& ostream) const {
 
 std::string OperatorToken::toString() const { return getIdentifier(); }
 std::string OperatorToken::getIdentifier() const { return ID; }
+unsigned int OperatorToken::getArity() const { return ARITY; }
+int OperatorToken::getPrecedence() const { return PRECD; }
+OperatorToken::Associativity OperatorToken::getAssociativity() const {
+    return ASSOC;
+}
 
 long OperatorToken::getPatternId(const NumTypePattern& pattern) {
     long patternId{0};
