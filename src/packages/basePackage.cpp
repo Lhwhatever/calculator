@@ -220,26 +220,25 @@ void divide__<IntegerToken>(ValueStack& values) {
     auto a = std::static_pointer_cast<IntegerToken>(values.back());
     values.pop_back();
 
-    if (*a % *b == 0) {
-        if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
-            *a = *a / *b;
-            values.push_back(a);
-            return;
-        }
-
-        if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
-            *b = *a / *b;
-            values.push_back(b);
-            return;
-        }
-
-        values.push_back(std::make_shared<IntegerToken>(*a / *b));
+    if (*a % *b) {
+        long long valA = *a;
+        values.push_back(std::make_shared<FloatToken>((long double)valA / *b));
         return;
     }
 
-    long long valA = *a;
+    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *a = *a / *b;
+        values.push_back(a);
+        return;
+    }
 
-    values.push_back(std::make_shared<FloatToken>((long double)valA / *b));
+    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *b = *a / *b;
+        values.push_back(b);
+        return;
+    }
+
+    values.push_back(std::make_shared<IntegerToken>(*a / *b));
 }
 
 template <typename Tl, typename Tm>

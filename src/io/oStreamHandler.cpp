@@ -4,7 +4,7 @@
 
 OStreamHandler::OStreamHandler(const Settings& settings, std::ostream& ostream,
                                IOMode ioMode)
-    : SETTINGS{settings}, stream{ostream}, IO_MODE{ioMode} {}
+    : SETTINGS(settings), stream{ostream}, IO_MODE{ioMode} {}
 
 const Settings& OStreamHandler::getSettings() const { return SETTINGS; }
 std::ostream& OStreamHandler::getStream() const { return stream; }
@@ -19,12 +19,11 @@ const OStreamHandler& OStreamHandler::operator<<(
     if (integerToken) {
         std::string str{integerToken->toString()};
 
-        if (SETTINGS.digitSep && SETTINGS.digitSepInterval != 0) {
-            for (int i = str.size() - SETTINGS.digitSepInterval,
+        if (SETTINGS.digitSep && SETTINGS.digitSepInterval)
+            for (int size = str.size(), i = size - SETTINGS.digitSepInterval,
                      end = integerToken->getValue() < 0 ? 1 : 0;
                  i > end; i -= SETTINGS.digitSepInterval)
                 str.insert(i, 1, SETTINGS.digitSep);
-        }
 
         stream << str;
         return *this;
@@ -34,13 +33,13 @@ const OStreamHandler& OStreamHandler::operator<<(
     if (floatToken) {
         std::string str{floatToken->toString()};
 
-        if (SETTINGS.digitSep && SETTINGS.digitSepInterval != 0) {
+        if (SETTINGS.digitSep && SETTINGS.digitSepInterval) {
             int pos = str.find('.');
-            for (int i = pos + (str.size() - str.find('.')) /
-                                   SETTINGS.digitSepInterval *
-                                   SETTINGS.digitSepInterval;
-                 i > pos; i -= SETTINGS.digitSepInterval)
+            for (int i = pos + SETTINGS.digitSepInterval + 1, size = str.size();
+                 i < size; i += SETTINGS.digitSepInterval + 1) {
                 str.insert(i, 1, SETTINGS.digitSep);
+                ++size;
+            }
 
             for (int j = pos - SETTINGS.digitSepInterval,
                      end = floatToken->isNeg();

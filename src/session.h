@@ -24,8 +24,8 @@ class Session {
     OperatorMap mapOper;
 
    public:
-    Session(Settings = Settings::DEFAULT, std::istream& istream = std::cin,
-            std::ostream& ostream = std::cout,
+    Session(Settings settings = Settings::DEFAULT,
+            std::istream& istream = std::cin, std::ostream& ostream = std::cout,
             std::ostream& errstream = std::cerr);
 
     ~Session();

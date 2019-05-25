@@ -8,7 +8,7 @@
 #include "ioModes.h"
 
 class OStreamHandler {
-    const Settings& SETTINGS;
+    const Settings SETTINGS;
     std::ostream& stream;
     const IOMode IO_MODE;
 

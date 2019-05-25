@@ -13,12 +13,11 @@ struct Settings {
 
     const ExprSyntax exprSyntax;
     const char digitSep;
-    const unsigned int digitSepInterval;
+    const int digitSepInterval;
     const char decimalSign;
 
-    Settings(const ExprSyntax exprSyntax = SYNTAX_RPN,
-             const char digitSep = '_', const unsigned int digitSepInterval = 3,
-             const char decimalSign = '.');
+    Settings(ExprSyntax exprSyntax = SYNTAX_RPN, char digitSep = '_',
+             int digitSepInterval = 3, char decimalSign = '.');
 };
 
 #endif
