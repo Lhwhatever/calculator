@@ -3,9 +3,12 @@
 
 namespace base_func {
 
-auto plus = std::make_shared<OperatorToken>("+", 2, 4);
-auto minus = std::make_shared<OperatorToken>("-", 2, 4);
-auto times = std::make_shared<OperatorToken>("*", 2, 4);
+auto plus =
+    std::make_shared<OperatorToken>("+", 2, 4, OperatorToken::LEFT_ASSOC);
+auto minus =
+    std::make_shared<OperatorToken>("-", 2, 4, OperatorToken::LEFT_ASSOC);
+auto times =
+    std::make_shared<OperatorToken>("*", 2, 5, OperatorToken::LEFT_ASSOC);
 
 }  // namespace base_func
 

@@ -27,6 +27,7 @@ class ValueToken : public Token {
         virtual void outputTo(std::ostream&) const override;
 
         operator std::string() const;
+        friend bool operator==(const NumType&, const NumType&);
     };
 
    public:

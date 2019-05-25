@@ -12,6 +12,7 @@ unsigned long NumType::getId() const { return ID; }
 void NumType::outputTo(std::ostream& ostream) const { ostream << DESCRIPT; }
 NumType::operator std::string() const { return DESCRIPT; }
 byte NumType::nextId{1};
+bool operator==(const NumType& a, const NumType& b) { return a.ID == b.ID; }
 
 ValueToken::ValueToken(ValueType valueType) : VALUE_TYPE{valueType} {}
 ValueToken::~ValueToken() {}
