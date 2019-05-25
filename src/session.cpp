@@ -8,6 +8,7 @@
 #include "except/syntaxException.h"
 #include "helper/strchop.h"
 #include "packages/package.h"
+#include "tokens/values/floatToken.h"
 #include "tokens/values/integerToken.h"
 
 namespace {
@@ -15,6 +16,7 @@ namespace {
 enum ParserLoopMode {
     MODE_DEFAULT,
     MODE_INTEGER,
+    MODE_FLOAT,
     MODE_IDENTIFIER,
     MODE_SYMBOL
 };
@@ -25,9 +27,16 @@ void emptyStringStream(std::stringstream& ss) {
 }
 
 void flushIntegers(std::stringstream& ss, TokenDeque& deque) {
-    long data;
+    long long data;
     ss >> data;
     deque.push_back(std::move(std::make_shared<IntegerToken>(data)));
+    emptyStringStream(ss);
+}
+
+void flushFloats(std::stringstream& ss, TokenDeque& deque) {
+    long double data;
+    ss >> data;
+    deque.push_back(std::move(std::make_shared<FloatToken>(data)));
     emptyStringStream(ss);
 }
 
@@ -101,20 +110,46 @@ void Session::tokenize(const std::string& expr) {
     }
 
     for (auto end = expr.cend(); it != end; ++it) {
-        char c{*it};
+        const char& c{*it};
 
         if (!loopMode) {
             if (strchop::isNumeric(c)) loopMode = MODE_INTEGER;
 
-            // for negatives
+            // for suspected floats
+            else if (c == settings.decimalSign) {
+                auto next = it + 1;
+
+                if (next != end && strchop::isNumeric(*next)) {  // float
+                    ss << '.';
+                    loopMode = MODE_FLOAT;
+                    continue;
+                } else  // not float
+                    loopMode = MODE_SYMBOL;
+            }
+
+            // for minus sign
             else if (settings.exprSyntax == Settings::SYNTAX_RPN && c == '-') {
                 ss << c;
-                auto next = it + 1;
-                loopMode = (next != end && strchop::isNumeric(*next))
-                               ? MODE_INTEGER
-                               : MODE_SYMBOL;
+                auto next{it + 1};
+
+                // minus sign
+                if (next == end) {
+                    loopMode = MODE_SYMBOL;
+                    break;
+                }
+
+                // negative number
+                if (strchop::isNumeric(*next)) {
+                    loopMode = MODE_INTEGER;
+                    continue;
+                }
+
+                // can't be negative float
+                if (*next != settings.decimalSign) loopMode = MODE_SYMBOL;
                 continue;
-            } else if (strchop::isSymbolic(c))
+            }
+
+            else if (strchop::isSymbolic(c))
                 loopMode = MODE_SYMBOL;
             else if (strchop::isWhitespace(c))
                 continue;
@@ -123,8 +158,22 @@ void Session::tokenize(const std::string& expr) {
         if (loopMode == MODE_INTEGER) {
             if (strchop::isNumeric(c))
                 ss << c;
-            else if (c != '_') {
+            else if (c == settings.decimalSign) {  // float
+                ss << '.';
+                loopMode = MODE_FLOAT;
+            } else if (c != settings.digitSep) {
                 flushIntegers(ss, tokenQueue);
+                loopMode = MODE_DEFAULT;
+                --it;
+            }
+            continue;
+        }
+
+        if (loopMode == MODE_FLOAT) {
+            if (strchop::isNumeric(c))
+                ss << c;
+            else if (c != settings.digitSep) {
+                flushFloats(ss, tokenQueue);
                 loopMode = MODE_DEFAULT;
                 --it;
             }
@@ -146,6 +195,8 @@ void Session::tokenize(const std::string& expr) {
 
     if (loopMode == MODE_INTEGER)
         flushIntegers(ss, tokenQueue);
+    else if (loopMode == MODE_FLOAT)
+        flushFloats(ss, tokenQueue);
     else if (loopMode == MODE_SYMBOL)
         flushSymbols(ss, tokenQueue, mapOper);
 }
@@ -186,10 +237,8 @@ void Session::displayResults(ValueStack& stack) const {
         return;
     }
 
-    if (settings.exprSyntax != Settings::SYNTAX_RPN) {
-        errstream << "Syntax error: more arguments than required by operators.";
-        return;
-    }
+    if (settings.exprSyntax != Settings::SYNTAX_RPN)
+        throw SyntaxException{"more arguments than required by operators"};
 
     ostream << '(' << *stack[0];
     for (auto it = ++(stack.cbegin()), end = stack.cend(); it != end; ++it) {
@@ -219,7 +268,10 @@ void Session::rep() {
         errstream << "[Error] " << e.what();
     }
 
-    if (fail) errstream << '\n';
+    if (fail) {
+        errstream << '\n';
+        tokenQueue.clear();
+    }
 }
 
 void Session::repl() {

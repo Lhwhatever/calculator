@@ -10,7 +10,11 @@ T gcd(T a, T b) {
     return a;
 }
 
-bool approxEquals(double x, double y, double relEpsilon = 1e-8,
-                  double absEpsilon = 1e-12);
+template <typename T, typename T_ = double>
+bool approxEquals(T x, T y, T_ relEpsilon = 1e-8, T_ absEpsilon = 1e-12) {
+    T diff = fabs(x - y);
+    if (diff <= absEpsilon) return true;
+    return diff <= ((fabs(x) < fabs(y) ? fabs(y) : fabs(x)) * relEpsilon);
+};
 
 }  // namespace math

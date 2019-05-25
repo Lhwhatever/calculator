@@ -12,12 +12,13 @@ struct Settings {
     static const Settings DEFAULT;
 
     const ExprSyntax exprSyntax;
-    const std::string digitSep;
+    const char digitSep;
     const unsigned int digitSepInterval;
+    const char decimalSign;
 
     Settings(const ExprSyntax exprSyntax = SYNTAX_RPN,
-             const std::string digitSep = "_",
-             const unsigned int digitSepInterval = 3);
+             const char digitSep = '_', const unsigned int digitSepInterval = 3,
+             const char decimalSign = '.');
 };
 
 #endif

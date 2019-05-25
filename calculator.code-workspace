@@ -69,7 +69,15 @@
 			"utility": "cpp",
 			"memory": "cpp",
 			"cstddef": "cpp",
-			"complex": "cpp"
+			"complex": "cpp",
+			"bitset": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"__tree": "cpp",
+			"iterator": "cpp",
+			"map": "cpp",
+			"set": "cpp",
+			"string": "cpp"
 		}
 	}
 }

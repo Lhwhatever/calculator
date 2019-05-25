@@ -1,3 +1,4 @@
+#include "../tokens/values/floatToken.h"
 #include "../tokens/values/integerToken.h"
 #include "package.h"
 
@@ -16,16 +17,21 @@ namespace {
 using IntegerTP = std::shared_ptr<IntegerToken>;
 
 namespace pats {
-auto i{std::ref(IntegerToken::TYPE_INTEGER)};
+auto tint{std::ref(IntegerToken::TYPE_INTEGER)};
+auto tfloat{std::ref(FloatToken::TYPE_FLOAT)};
 
-NumTypePattern int_int{i, i};
+NumTypePattern int_int{tint, tint};
+NumTypePattern int_float{tint, tfloat};
+NumTypePattern float_int{tfloat, tint};
+NumTypePattern float_float{tfloat, tfloat};
 }  // namespace pats
 
 namespace ops {
-void add__int_int(ValueStack& values) {
-    auto b = std::static_pointer_cast<IntegerToken>(values.back());
+template <typename T>
+void add__(ValueStack& values) {
+    auto b = std::static_pointer_cast<T>(values.back());
     values.pop_back();
-    auto a = std::static_pointer_cast<IntegerToken>(values.back());
+    auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
     if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
@@ -40,13 +46,46 @@ void add__int_int(ValueStack& values) {
         return;
     }
 
-    values.push_back(std::make_shared<IntegerToken>(*a + *b));
+    values.push_back(std::make_shared<T>(*a + *b));
 }
 
-void subtract__int_int(ValueStack& values) {
-    auto b = std::static_pointer_cast<IntegerToken>(values.back());
+template <typename Tl, typename Tm>
+void add__lm(ValueStack& values) {
+    auto b = std::static_pointer_cast<Tm>(values.back());
     values.pop_back();
-    auto a = std::static_pointer_cast<IntegerToken>(values.back());
+    auto a = std::static_pointer_cast<Tl>(values.back());
+    values.pop_back();
+
+    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *b = *a + *b;
+        values.push_back(b);
+        return;
+    }
+
+    values.push_back(std::make_shared<Tm>(*a + *b));
+}
+
+template <typename Tm, typename Tl>
+void add__ml(ValueStack& values) {
+    auto b = std::static_pointer_cast<Tl>(values.back());
+    values.pop_back();
+    auto a = std::static_pointer_cast<Tm>(values.back());
+    values.pop_back();
+
+    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *a = *a + *b;
+        values.push_back(a);
+        return;
+    }
+
+    values.push_back(std::make_shared<Tm>(*a + *b));
+}
+
+template <typename T>
+void subtract__(ValueStack& values) {
+    auto b = std::static_pointer_cast<T>(values.back());
+    values.pop_back();
+    auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
     if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
@@ -61,13 +100,46 @@ void subtract__int_int(ValueStack& values) {
         return;
     }
 
-    values.push_back(std::make_shared<IntegerToken>(*a - *b));
+    values.push_back(std::make_shared<T>(*a - *b));
 }
 
-void multiply__int_int(ValueStack& values) {
-    auto b = std::static_pointer_cast<IntegerToken>(values.back());
+template <typename Tl, typename Tm>
+void subtract__lm(ValueStack& values) {
+    auto b = std::static_pointer_cast<Tm>(values.back());
     values.pop_back();
-    auto a = std::static_pointer_cast<IntegerToken>(values.back());
+    auto a = std::static_pointer_cast<Tl>(values.back());
+    values.pop_back();
+
+    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *b = *a - *b;
+        values.push_back(b);
+        return;
+    }
+
+    values.push_back(std::make_shared<Tm>(*a - *b));
+}
+
+template <typename Tm, typename Tl>
+void subtract__ml(ValueStack& values) {
+    auto b = std::static_pointer_cast<Tl>(values.back());
+    values.pop_back();
+    auto a = std::static_pointer_cast<Tm>(values.back());
+    values.pop_back();
+
+    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *a = *a - *b;
+        values.push_back(a);
+        return;
+    }
+
+    values.push_back(std::make_shared<Tm>(*a - *b));
+}
+
+template <typename T>
+void multiply__(ValueStack& values) {
+    auto b = std::static_pointer_cast<T>(values.back());
+    values.pop_back();
+    auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
     if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
@@ -82,14 +154,61 @@ void multiply__int_int(ValueStack& values) {
         return;
     }
 
-    values.push_back(std::make_shared<IntegerToken>(*a * *b));
+    values.push_back(std::make_shared<T>(*a * *b));
+}
+
+template <typename Tl, typename Tm>
+void multiply__lm(ValueStack& values) {
+    auto b = std::static_pointer_cast<Tm>(values.back());
+    values.pop_back();
+    auto a = std::static_pointer_cast<Tl>(values.back());
+    values.pop_back();
+
+    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *b = *a * *b;
+        values.push_back(b);
+        return;
+    }
+
+    values.push_back(std::make_shared<Tm>(*a * *b));
+}
+
+template <typename Tm, typename Tl>
+void multiply__ml(ValueStack& values) {
+    auto b = std::static_pointer_cast<Tl>(values.back());
+    values.pop_back();
+    auto a = std::static_pointer_cast<Tm>(values.back());
+    values.pop_back();
+
+    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *a = *a * *b;
+        values.push_back(a);
+        return;
+    }
+
+    values.push_back(std::make_shared<Tm>(*a * *b));
 }
 }  // namespace ops
 
+namespace {
+using namespace base_func;
+}
+
 void initBasePackage(Package&, const Settings&) {
-    base_func::plus->bind(pats::int_int, ops::add__int_int);
-    base_func::minus->bind(pats::int_int, ops::subtract__int_int);
-    base_func::times->bind(pats::int_int, ops::multiply__int_int);
+    plus->bind(pats::int_int, ops::add__<IntegerToken>);
+    plus->bind(pats::int_float, ops::add__lm<IntegerToken, FloatToken>);
+    plus->bind(pats::float_int, ops::add__ml<FloatToken, IntegerToken>);
+    plus->bind(pats::float_float, ops::add__<FloatToken>);
+
+    minus->bind(pats::int_int, ops::subtract__<IntegerToken>);
+    minus->bind(pats::int_float, ops::subtract__lm<IntegerToken, FloatToken>);
+    minus->bind(pats::float_int, ops::subtract__ml<FloatToken, IntegerToken>);
+    minus->bind(pats::float_float, ops::subtract__<FloatToken>);
+
+    times->bind(pats::int_int, ops::multiply__<IntegerToken>);
+    times->bind(pats::int_float, ops::multiply__lm<IntegerToken, FloatToken>);
+    times->bind(pats::float_int, ops::multiply__ml<FloatToken, IntegerToken>);
+    times->bind(pats::float_float, ops::multiply__<FloatToken>);
 }
 
 void preloadBasePackage(Package& p, const Settings&) {

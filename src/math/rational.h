@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <iterator>
 
-struct math::Rational;
-
 namespace math {
 struct Rational {
    private:

@@ -42,14 +42,14 @@ Rational& Rational::operator=(int x) {
 }
 
 Rational::operator double() const {
-    double x{n};
+    double x = n;
     return x / d;
 }
 
 int Rational::floor() const { return n / d; }
 
 float Rational::asFloat() const {
-    float x{n};
+    float x = n;
     return x / d;
 }
 

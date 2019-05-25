@@ -26,6 +26,8 @@ inline bool isWhitespace(char c) { return c == ' '; }
 inline bool isSymbolic(char c) {
     return chars::SYMBOLS.find(c) != chars::symbolend;
 }
+
+inline bool isPrintable(char c) { return c >= ' ' || c != 0x7f; }
 }  // namespace strchop
 
 #endif

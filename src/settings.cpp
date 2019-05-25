@@ -3,14 +3,30 @@
 #include "except/invalidSettingException.h"
 #include "helper/strchop.h"
 
-Settings::Settings(const ExprSyntax syntax, const std::string digitSep,
-                   const unsigned int digitSepInterval)
+Settings::Settings(const ExprSyntax syntax, const char digitSep,
+                   const unsigned int digitSepInterval, const char decimalSign)
     : exprSyntax{syntax},
       digitSep{digitSep},
-      digitSepInterval{digitSepInterval} {
-    if (strchop::isWhitespace(*digitSep.cbegin())) {
-        throw InvalidSettingException{"digit separator cannot be whitespace"};
-    }
+      digitSepInterval{digitSepInterval},
+      decimalSign{decimalSign} {
+    if (!digitSep || strchop::isAlphanumeric(digitSep) ||
+        strchop::isWhitespace(digitSep) || !strchop::isPrintable(digitSep) ||
+        digitSep == '+' || digitSep == '-')
+        throw InvalidSettingException{
+            "digit separator cannot be alphanumeric, whitespace or "
+            "non-printable (unless it is \\0)"};
+
+    if (strchop::isAlphanumeric(decimalSign) ||
+        strchop::isWhitespace(decimalSign) ||
+        !strchop::isPrintable(decimalSign) || decimalSign == '+' ||
+        decimalSign == '-')
+        throw InvalidSettingException{
+            "digit separator cannot be alphanumeric, whitespace or "
+            "non-printable"};
+
+    if (digitSep == decimalSign)
+        throw InvalidSettingException{
+            "digit separator cannot be same as decimal sign"};
 }
 
 const Settings Settings::DEFAULT{};
