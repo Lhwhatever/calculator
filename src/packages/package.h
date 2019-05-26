@@ -29,10 +29,11 @@ class Package {
     Callback onInit;
     Callback onPreload;
     Callback onLoad;
+    Callback onReload;
 
    public:
     Package(std::string, Callback onInit = pass, Callback onPreload = pass,
-            Callback onLoad = pass);
+            Callback onLoad = pass, Callback onReload = pass);
 
    public:
     static bool add(Package&);
@@ -49,6 +50,7 @@ class Package {
     void init(const Settings&);
     void preload(const Settings&);
     void load(const Settings&);
+    void reload(const Settings&);
 
     friend class Session;
     friend void default_packages::add();

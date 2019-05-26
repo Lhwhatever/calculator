@@ -1,8 +1,7 @@
 #include "session.h"
 
-#include <sstream>
-
 #include "except/arityMismatchException.h"
+#include "except/dataOutOfLimitException.h"
 #include "except/interruptException.h"
 #include "except/noOperationException.h"
 #include "except/syntaxException.h"
@@ -11,51 +10,14 @@
 #include "tokens/values/floatToken.h"
 #include "tokens/values/integerToken.h"
 
-namespace {
-
-enum ParserLoopMode {
-    MODE_DEFAULT,
-    MODE_INTEGER,
-    MODE_FLOAT,
-    MODE_IDENTIFIER,
-    MODE_SYMBOL
-};
-
-void emptyStringStream(std::stringstream& ss) {
-    ss.str("");
-    ss.clear();
-}
-
-void flushIntegers(std::stringstream& ss, TokenDeque& deque) {
-    long long data;
-    ss >> data;
-    deque.push_back(std::move(std::make_shared<IntegerToken>(data)));
-    emptyStringStream(ss);
-}
-
-void flushFloats(std::stringstream& ss, TokenDeque& deque) {
-    long double data;
-    ss >> data;
-    deque.push_back(std::move(std::make_shared<FloatToken>(data)));
-    emptyStringStream(ss);
-}
-
-void flushSymbols(std::stringstream& ss, TokenDeque& deque, OperatorMap& map) {
-    auto s{ss.str()};
-    if (map.find(s) == map.end()) throw SyntaxException(s);
-    auto op{map.find(ss.str())->second};
-    deque.push_back(op);
-    emptyStringStream(ss);
-}
-}  // namespace
-
-Session::Session(Settings settings, std::istream& istream,
+Session::Session(const Settings& settings, std::istream& istream,
                  std::ostream& ostream, std::ostream& errstream)
     : settings{settings},
       istream{istream},
       ostream{OStreamHandler{settings, ostream, IOMODE_STD}},
       errstream{errstream},
-      tokenQueue{} {
+      tokenQueue{},
+      tokenBuilder{} {
     default_packages::add();
 
     for (auto it = Package::packages.begin(), end = Package::packages.end();
@@ -79,6 +41,49 @@ void Session::loadPackage(const std::string& name) {
     mapOper.merge(p.mapOper);
 }
 
+void Session::emptyTokenBuilder() {
+    tokenBuilder.str("");
+    tokenBuilder.clear();
+}
+
+void Session::flushIntegers(ParserLoopMode& loopMode) {
+    long long data;
+
+    // attempt to put number as a float
+    if (!(tokenBuilder >> data)) {
+        tokenBuilder.clear();
+        tokenBuilder.str(tokenBuilder.str());
+        flushFloats(loopMode);
+        return;
+    }
+
+    tokenQueue.push_back(std::make_shared<IntegerToken>(data));
+    emptyTokenBuilder();
+    loopMode = MODE_DEFAULT;
+}
+
+void Session::flushFloats(ParserLoopMode& loopMode) {
+    long double data;
+    if (!(tokenBuilder >> data)) {
+        throw DataOutOfLimitException("long double", std::to_string(data),
+                                      tokenBuilder.str());
+    }
+    tokenQueue.push_back(std::make_shared<FloatToken>(data));
+    emptyTokenBuilder();
+    loopMode = MODE_DEFAULT;
+}
+
+void Session::flushSymbols__RPN(ParserLoopMode& loopMode) {
+    auto id{tokenBuilder.str()};
+    auto it{mapOper.lower_bound(id)};
+    auto end{mapOper.upper_bound(id)};
+
+    if (it == end) throw SyntaxException(id);  // no operators found
+    tokenQueue.push_back(it->second);
+    emptyTokenBuilder();
+    loopMode = MODE_DEFAULT;
+}
+
 std::string Session::read() {
     std::ostringstream ss;
     std::string nextLine;
@@ -99,9 +104,9 @@ std::string Session::read() {
     return ss.str();
 }
 
-void Session::tokenize(const std::string& expr) {
+void Session::tokenize__RPN(const std::string& expr) {
     ParserLoopMode loopMode{MODE_DEFAULT};
-    std::stringstream ss;
+    emptyTokenBuilder();
 
     auto it = expr.cbegin();
     if (*it == ':') {
@@ -112,7 +117,7 @@ void Session::tokenize(const std::string& expr) {
     for (auto end = expr.cend(); it != end; ++it) {
         const char& c{*it};
 
-        if (!loopMode) {
+        if (loopMode == MODE_DEFAULT) {
             if (strchop::isNumeric(c)) loopMode = MODE_INTEGER;
 
             // for suspected floats
@@ -120,7 +125,7 @@ void Session::tokenize(const std::string& expr) {
                 auto next = it + 1;
 
                 if (next != end && strchop::isNumeric(*next)) {  // float
-                    ss << '.';
+                    tokenBuilder << '.';
                     loopMode = MODE_FLOAT;
                     continue;
                 } else  // not float
@@ -129,7 +134,7 @@ void Session::tokenize(const std::string& expr) {
 
             // for minus sign
             else if (settings.exprSyntax == Settings::SYNTAX_RPN && c == '-') {
-                ss << c;
+                tokenBuilder << c;
                 auto next{it + 1};
 
                 // minus sign
@@ -155,51 +160,112 @@ void Session::tokenize(const std::string& expr) {
                 continue;
         }
 
-        if (loopMode == MODE_INTEGER) {
-            if (strchop::isNumeric(c))
-                ss << c;
-            else if (c == settings.decimalSign) {  // float
-                ss << '.';
-                loopMode = MODE_FLOAT;
-            } else if (c != settings.digitSep) {
-                flushIntegers(ss, tokenQueue);
-                loopMode = MODE_DEFAULT;
-                --it;
-            }
-            continue;
-        }
+        switch (loopMode) {
+            case MODE_INTEGER:
+                if (strchop::isNumeric(c))
+                    tokenBuilder << c;
+                else if (c == settings.decimalSign) {  // float
+                    tokenBuilder << '.';
+                    loopMode = MODE_FLOAT;
+                } else if (c == 'e' || c == 'E') {  // suspect scientific
+                    auto next{it + 1};
+                    if (next == end) {  // not scientific
+                        flushIntegers(loopMode);
+                        --it;
+                    } else if (strchop::isNumeric(*next)) {  // scientific
+                        tokenBuilder << 'e';
+                        loopMode = MODE_FLOAT_EXP;
+                    } else if (*next == '-' || *next == '+') {
+                        auto after{next + 1};
+                        if (after == end || !strchop::isNumeric(*after)) {
+                            flushIntegers(loopMode);
+                            --it;
+                        } else {
+                            tokenBuilder << 'e' << *next;
+                            loopMode = MODE_FLOAT_EXP;
+                            ++it;
+                        }
+                    } else {
+                        flushIntegers(loopMode);
+                        --it;
+                    }
+                } else if (c != settings.digitSep) {
+                    flushIntegers(loopMode);
+                    --it;
+                }
+                break;
 
-        if (loopMode == MODE_FLOAT) {
-            if (strchop::isNumeric(c))
-                ss << c;
-            else if (c != settings.digitSep) {
-                flushFloats(ss, tokenQueue);
-                loopMode = MODE_DEFAULT;
-                --it;
-            }
-            continue;
-        }
+            case MODE_FLOAT:
+                if (strchop::isNumeric(c))
+                    tokenBuilder << c;
+                else if (c == 'e' || c == 'E') {  // suspect scientific
+                    auto next{it + 1};
+                    if (next == end) {  // not scientific
+                        flushFloats(loopMode);
+                        --it;
+                    } else if (strchop::isNumeric(*next)) {  // scientific
+                        tokenBuilder << 'e';
+                        loopMode = MODE_FLOAT_EXP;
+                    } else if (*next == '-' || *next == '+') {
+                        auto after{next + 1};
+                        if (after == end || !strchop::isNumeric(*after)) {
+                            flushFloats(loopMode);
+                            --it;
+                        } else {
+                            tokenBuilder << 'e' << *next;
+                            loopMode = MODE_FLOAT_EXP;
+                            ++it;
+                        }
+                    } else {
+                        flushFloats(loopMode);
+                        --it;
+                    }
+                } else if (c != settings.digitSep) {
+                    flushFloats(loopMode);
+                    --it;
+                }
+                break;
 
-        if (loopMode == MODE_SYMBOL) {
-            if (strchop::isSymbolic(c))
-                ss << c;
-            else {
-                flushSymbols(ss, tokenQueue, mapOper);
-                loopMode = MODE_DEFAULT;
-                --it;
-            }
+            case MODE_FLOAT_EXP:
+                if (strchop::isNumeric(c))
+                    tokenBuilder << c;
+                else if (c != settings.digitSep) {
+                    flushFloats(loopMode);
+                    --it;
+                }
+                break;
+            case MODE_SYMBOL:
+                if (loopMode == MODE_SYMBOL) {
+                    if (strchop::isSymbolic(c))
+                        tokenBuilder << c;
+                    else {
+                        flushSymbols__RPN(loopMode);
+                        --it;
+                    }
+                    break;
+                }
 
-            continue;
+            default:
+                break;
         }
     }
 
-    if (loopMode == MODE_INTEGER)
-        flushIntegers(ss, tokenQueue);
-    else if (loopMode == MODE_FLOAT)
-        flushFloats(ss, tokenQueue);
-    else if (loopMode == MODE_SYMBOL)
-        flushSymbols(ss, tokenQueue, mapOper);
+    switch (loopMode) {
+        case MODE_INTEGER:
+            flushIntegers(loopMode);
+            break;
+        case MODE_FLOAT:
+        case MODE_FLOAT_EXP:
+            flushFloats(loopMode);
+            break;
+        case MODE_SYMBOL:
+            flushSymbols__RPN(loopMode);
+        default:
+            break;
+    }
 }
+
+void Session::tokenize__infix(const std::string& expr) {}
 
 ValueStack Session::evaluateTokens() {
     TokenDeque queue;
@@ -252,7 +318,12 @@ void Session::rep() {
 
     try {
         auto x{read()};
-        tokenize(x);
+
+        if (settings.exprSyntax == Settings::SYNTAX_RPN)
+            tokenize__RPN(x);
+        else
+            tokenize__infix(x);
+
         auto values = evaluateTokens();
         displayResults(values);
         fail = true;
@@ -264,6 +335,9 @@ void Session::rep() {
         errstream << "[Error]<No Operation> " << e.what();
     } catch (InterruptException& e) {
         throw;
+    } catch (DataOutOfLimitException& e) {
+        errstream << "[Error]<DataOutOfLimit> " << e.what();
+        emptyTokenBuilder();
     } catch (std::exception& e) {
         errstream << "[Error] " << e.what();
     }

@@ -16,18 +16,24 @@ using OperationMap = std::unordered_map<long, const Operation>;
 
 class OperatorToken : public Token {
    public:
-    enum Associativity { LEFT_ASSOC, RIGHT_ASSOC };
+    enum Associativity { ASSOC_L, ASSOC_R };
 
    private:
-    const std::string ID;
+    std::string ID;
     const unsigned int ARITY;
     const int PRECD;
     const Associativity ASSOC;
     OperationMap operations;
 
    public:
-    OperatorToken(const std::string& identifier, unsigned int arity,
-                  int precedence, Associativity assoc = LEFT_ASSOC);
+    OperatorToken(const std::string identifier, const unsigned int arity,
+                  const int precedence, Associativity assoc);
+
+    OperatorToken(const OperatorToken& tok, const std::string& alias);
+    OperatorToken(const OperatorToken& tok, const std::string& alias,
+                  const int precedence);
+
+    OperatorToken(const OperatorToken& tok) = delete;
 
    protected:
     virtual void outputTo(std::ostream& ostream) const override;
@@ -36,7 +42,9 @@ class OperatorToken : public Token {
     static long getPatternId(const NumTypePattern&);
 
     virtual std::string toString() const override;
-    std::string getIdentifier() const;
+    const std::string& getIdentifier() const;
+    void setIdentifier(const std::string&);
+
     unsigned int getArity() const;
     int getPrecedence() const;
     Associativity getAssociativity() const;

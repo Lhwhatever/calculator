@@ -4,14 +4,13 @@
 
 namespace base_func {
 
-auto plus =
-    std::make_shared<OperatorToken>("+", 2, 4, OperatorToken::LEFT_ASSOC);
-auto minus =
-    std::make_shared<OperatorToken>("-", 2, 4, OperatorToken::LEFT_ASSOC);
-auto times =
-    std::make_shared<OperatorToken>("*", 2, 5, OperatorToken::LEFT_ASSOC);
+auto plus = std::make_shared<OperatorToken>("+", 2, 4, OperatorToken::ASSOC_L);
+auto minus = std::make_shared<OperatorToken>("-", 2, 4, OperatorToken::ASSOC_L);
+auto minus1 =
+    std::make_shared<OperatorToken>("-", 1, 6, OperatorToken::ASSOC_R);
+auto times = std::make_shared<OperatorToken>("*", 2, 5, OperatorToken::ASSOC_L);
 auto divide =
-    std::make_shared<OperatorToken>("/", 2, 5, OperatorToken::LEFT_ASSOC);
+    std::make_shared<OperatorToken>("/", 2, 5, OperatorToken::ASSOC_L);
 
 }  // namespace base_func
 
@@ -21,6 +20,9 @@ using IntegerTP = std::shared_ptr<IntegerToken>;
 namespace pats {
 auto tint{std::ref(IntegerToken::TYPE_INTEGER)};
 auto tfloat{std::ref(FloatToken::TYPE_FLOAT)};
+
+NumTypePattern int1{tint};
+NumTypePattern float1{tfloat};
 
 NumTypePattern int_int{tint, tint};
 NumTypePattern int_float{tint, tfloat};
@@ -135,6 +137,20 @@ void subtract__ml(ValueStack& values) {
     }
 
     values.push_back(std::make_shared<Tm>(*a - *b));
+}
+
+template <typename T>
+void minus__(ValueStack& values) {
+    auto a = std::static_pointer_cast<T>(values.back());
+
+    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+        *a = -*a;
+        values.push_back(a);
+        return;
+    }
+
+    values.pop_back();
+    values.push_back(std::make_shared<T>(-*a));
 }
 
 template <typename T>
@@ -289,6 +305,9 @@ void initBasePackage(Package&, const Settings&) {
     minus->bind(pats::float_int, ops::subtract__ml<FloatToken, IntegerToken>);
     minus->bind(pats::float_float, ops::subtract__<FloatToken>);
 
+    minus1->bind(pats::int1, ops::minus__<IntegerToken>);
+    minus1->bind(pats::float1, ops::minus__<FloatToken>);
+
     times->bind(pats::int_int, ops::multiply__<IntegerToken>);
     times->bind(pats::int_float, ops::multiply__lm<IntegerToken, FloatToken>);
     times->bind(pats::float_int, ops::multiply__ml<FloatToken, IntegerToken>);
@@ -300,13 +319,26 @@ void initBasePackage(Package&, const Settings&) {
     divide->bind(pats::float_float, ops::divide__<FloatToken>);
 }
 
-void preloadBasePackage(Package& p, const Settings&) {
-    p.addOperator(base_func::plus);
-    p.addOperator(base_func::minus);
-    p.addOperator(base_func::times);
-    p.addOperator(base_func::divide);
+void preloadBasePackage(Package& p, const Settings& s) {
+    p.addOperator(plus);
+    p.addOperator(minus);
+
+    // need to change identifier for unary minus for RPN as overloading is not
+    // supported in RPN mode
+    if (s.exprSyntax == Settings::SYNTAX_RPN) minus1->setIdentifier("~");
+    p.addOperator(minus1);
+
+    p.addOperator(times);
+    p.addOperator(divide);
+}
+
+void loadBasePackage(Package&, const Settings&) {}
+
+void reloadBasePackage(Package&, const Settings& s) {
+    minus1->setIdentifier((s.exprSyntax == Settings::SYNTAX_RPN) ? "~" : "-");
 }
 
 }  // namespace
 
-Package Package::basePackage{"base", initBasePackage, preloadBasePackage};
+Package Package::basePackage{"base", initBasePackage, preloadBasePackage,
+                             loadBasePackage, reloadBasePackage};

@@ -7,10 +7,12 @@
 std::map<const std::string, PackageR> Package::packages{};
 
 Package::Package(std::string name, Callback onInit, Callback onPreload,
-                 Callback onLoad)
-    : NAME{name}, onInit{onInit}, onPreload{onPreload}, onLoad{onLoad} {
-    // packages.insert_or_assign(NAME, std::ref(*this));
-}
+                 Callback onLoad, Callback onReload)
+    : NAME{name},
+      onInit{onInit},
+      onPreload{onPreload},
+      onLoad{onLoad},
+      onReload{onReload} {}
 
 void Package::addOperator(OperatorTokenSP& oper) {
     mapOper.emplace(oper->getIdentifier(), oper);
@@ -48,6 +50,7 @@ std::string Package::getName() const { return NAME; }
 void Package::init(const Settings& s) { onInit(*this, s); }
 void Package::preload(const Settings& s) { onPreload(*this, s); }
 void Package::load(const Settings& s) { onLoad(*this, s); }
+void Package::reload(const Settings& s) { onReload(*this, s); }
 
 bool Package::add(Package& p) {
     auto [it, result] = packages.try_emplace(p.getName(), std::ref(p));
