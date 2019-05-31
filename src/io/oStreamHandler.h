@@ -2,6 +2,7 @@
 #define CALC__IO__OUTPUT_STREAM_HANDLER_H_
 
 #include <stdio.h>
+#include <sstream>
 
 #include "../settings.h"
 #include "../tokens/operators/operatorToken.h"
@@ -10,6 +11,7 @@
 class OStreamHandler {
     const Settings SETTINGS;
     std::ostream& stream;
+    std::stringstream sciStream;
     const IOMode IO_MODE;
 
    public:

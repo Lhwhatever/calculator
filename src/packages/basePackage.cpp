@@ -1,3 +1,4 @@
+#include "../tokens/operators/operatorToken.h"
 #include "../tokens/values/floatToken.h"
 #include "../tokens/values/integerToken.h"
 #include "package.h"
@@ -18,8 +19,8 @@ namespace {
 using IntegerTP = std::shared_ptr<IntegerToken>;
 
 namespace pats {
-auto tint{std::ref(IntegerToken::TYPE_INTEGER)};
-auto tfloat{std::ref(FloatToken::TYPE_FLOAT)};
+auto& tint{IntegerToken::TYPE_INTEGER};
+auto& tfloat{FloatToken::TYPE_FLOAT};
 
 NumTypePattern int1{tint};
 NumTypePattern float1{tfloat};

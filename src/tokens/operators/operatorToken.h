@@ -1,18 +1,13 @@
 #ifndef TOKENS__OPERATOR_TOKEN_H_
 #define TOKENS__OPERATOR_TOKEN_H_
 
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#include <map>
 
 #include "../values/valueToken.h"
+#include "numTypePattern.h"
 
-using ValueTP = std::shared_ptr<ValueToken>;
-using ValueStack = std::vector<ValueTP>;
 using Operation = void (*)(ValueStack&);
-using NumTypeR = std::reference_wrapper<const ValueToken::NumType>;
-using NumTypePattern = std::vector<NumTypeR>;
-using OperationMap = std::unordered_map<long, const Operation>;
+using OperationMap = std::map<NumTypePattern, Operation>;
 
 class OperatorToken : public Token {
    public:
@@ -39,8 +34,6 @@ class OperatorToken : public Token {
     virtual void outputTo(std::ostream& ostream) const override;
 
    public:
-    static long getPatternId(const NumTypePattern&);
-
     virtual std::string toString() const override;
     const std::string& getIdentifier() const;
     void setIdentifier(const std::string&);

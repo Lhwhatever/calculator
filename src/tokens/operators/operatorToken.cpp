@@ -37,20 +37,13 @@ OperatorToken::Associativity OperatorToken::getAssociativity() const {
     return ASSOC;
 }
 
-long OperatorToken::getPatternId(const NumTypePattern& pattern) {
-    long patternId{0};
-    for (auto it = pattern.cbegin(), end = pattern.end(); it != end; ++it)
-        patternId = (patternId << 8) + it->get().getId();
-    return patternId;
-}
-
 void OperatorToken::bind(const NumTypePattern& pattern, const Operation& oper) {
     if (pattern.size() != ARITY)
         throw ArityMismatchException(
             ID, ARITY, pattern.size(),
             "when binding new Operation to OperatorToken");
 
-    operations.try_emplace(getPatternId(pattern), oper);
+    operations.try_emplace(pattern, oper);
 }
 
 void OperatorToken::operate(ValueStack& values) {
@@ -59,12 +52,12 @@ void OperatorToken::operate(ValueStack& values) {
         throw ArityMismatchException(ID, ARITY, size,
                                      "when executing operation");
 
-    long patternId{0};
+    NumTypePattern pattern(ARITY);
     for (int i = size - ARITY, s = size; i < s; ++i)
-        patternId = (patternId << 8) + values[i]->getNumType().getId();
+        pattern.push_back(values[i]->getNumType());
 
-    if (operations.find(patternId) == operations.end())
+    if (operations.find(pattern) == operations.end())
         throw NoOperationException("no operation could be found");
 
-    operations.at(patternId)(values);
+    operations.at(pattern)(values);
 }

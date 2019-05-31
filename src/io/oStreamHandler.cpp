@@ -4,7 +4,7 @@
 
 OStreamHandler::OStreamHandler(const Settings& settings, std::ostream& ostream,
                                IOMode ioMode)
-    : SETTINGS(settings), stream{ostream}, IO_MODE{ioMode} {}
+    : SETTINGS(settings), stream{ostream}, sciStream{}, IO_MODE{ioMode} {}
 
 const Settings& OStreamHandler::getSettings() const { return SETTINGS; }
 std::ostream& OStreamHandler::getStream() const { return stream; }
@@ -13,10 +13,10 @@ void OStreamHandler::flush() const { stream.flush(); }
 
 const OStreamHandler& OStreamHandler::operator<<(
     const ValueToken& token) const {
-    const ValueToken::NumType numType{token.getNumType()};
+    const ValueToken::NumType& numType{token.getNumType()};
 
-    auto integerToken{dynamic_cast<const IntegerToken*>(&token)};
-    if (integerToken) {
+    if (numType == IntegerToken::TYPE_INTEGER) {
+        auto integerToken{static_cast<const IntegerToken*>(&token)};
         std::string str{integerToken->toString()};
 
         if (SETTINGS.digitSep && SETTINGS.digitSepInterval)
@@ -29,8 +29,8 @@ const OStreamHandler& OStreamHandler::operator<<(
         return *this;
     }
 
-    auto floatToken{dynamic_cast<const FloatToken*>(&token)};
-    if (floatToken) {
+    if (numType == FloatToken::TYPE_FLOAT) {
+        auto floatToken{static_cast<const FloatToken*>(&token)};
         std::string str{floatToken->toString()};
 
         if (SETTINGS.digitSep && SETTINGS.digitSepInterval) {
