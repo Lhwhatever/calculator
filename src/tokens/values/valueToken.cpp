@@ -1,20 +1,27 @@
 #include "valueToken.h"
 
+#include <functional>
+
 namespace {
 using NumType = ValueToken::NumType;
 }
 
-NumType::NumType(std::string description)
-    : ID{nextId++}, DESCRIPT{description} {}
+std::vector<ValueToken::NumTypeR> NumType::types;
 
-std::string NumType::getDescription() const { return DESCRIPT; }
-unsigned short NumType::getId() const { return ID; }
-void NumType::outputTo(std::ostream& ostream) const { ostream << DESCRIPT; }
-NumType::operator std::string() const { return DESCRIPT; }
-bool operator==(const NumType& a, const NumType& b) { return a.ID == b.ID; }
+NumType::NumType(const std::string& name)
+    : ID{static_cast<unsigned short>(types.size())}, NAME{name} {
+    types.push_back(std::cref(*this));
+}
 
-unsigned short NumType::nextId{0};
+const NumType& NumType::getById(const unsigned short id) {
+    return types.at(id);
+}
+
 const NumType NumType::TYPE_UNDEFINED{"undefined"};
 
-ValueToken::ValueToken(ValueType valueType) : VALUE_TYPE{valueType} {}
-ValueToken::~ValueToken() {}
+bool operator==(const NumType& a, const NumType& b) { return a.ID == b.ID; }
+
+ValueToken::ValueToken(const NumType& numType, const ValueType valueType)
+    : Token{Token::CAT_VALUE}, TYPE_VALUE{valueType}, TYPE_NUM{numType} {}
+
+ValueToken::operator ValueToken::ValueType() const { return TYPE_VALUE; }

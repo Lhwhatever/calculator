@@ -4,7 +4,6 @@
 #include "valueToken.h"
 
 class FloatToken : public ValueToken {
-   private:
     long double value;
 
    public:
@@ -14,7 +13,7 @@ class FloatToken : public ValueToken {
     static const FloatToken NEG_INF;
     static const FloatToken ONE;
 
-    static const NumType TYPE_FLOAT;
+    static const NumType& TYPE_FLOAT;
     static long double absEpsilon;
     static long double relEpsilon;
 
@@ -22,15 +21,9 @@ class FloatToken : public ValueToken {
     FloatToken(const long double value,
                const ValueToken::ValueType = ValueToken::ASSIGNABLE);
 
-   protected:
-    virtual void outputTo(std::ostream&) const override;
-
    public:
     double getValue() const;
     void setValue(const double);
-
-    virtual bool isZero() const override;
-    virtual bool isUnity() const override;
 
     bool isFinite() const;
     bool isPosInf() const;
@@ -39,13 +32,10 @@ class FloatToken : public ValueToken {
     bool isNaN() const;
     bool isNeg() const;
 
-    virtual const NumType& getNumType() const override;
-
     FloatToken& operator=(const float value);
     FloatToken& operator=(const double value);
     FloatToken& operator=(const long double value);
     operator long double();
-    virtual std::string toString() const;
 
     friend bool operator==(const FloatToken&, const FloatToken&);
     friend bool operator==(const FloatToken&, const long double& val);

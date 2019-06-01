@@ -3,7 +3,8 @@
 #include <sstream>
 
 ArityMismatchException::ArityMismatchException(std::string identifier,
-                                               int expected, int received,
+                                               unsigned int expected,
+                                               unsigned int received,
                                                std::string extra)
     : SyntaxException{extra},
       ID{identifier},

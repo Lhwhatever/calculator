@@ -1,14 +1,12 @@
 #ifndef CALC__SESSION_H_
 #define CALC__SESSION_H_
 
-#include <iostream>
 #include <sstream>
 
 #include "io/oStreamHandler.h"
 #include "packages/package.h"
 #include "settings.h"
-
-using TokenDeque = std::deque<std::shared_ptr<Token>>;
+#include "tokens/tokenQueue.h"
 
 namespace input_prompt {
 const std::string GET_INPUT_TOKEN = "> ";
@@ -16,7 +14,6 @@ const std::string INPUT_TOKEN_TABBED = "... ";
 }  // namespace input_prompt
 
 class Session {
-   private:
     enum ParserLoopMode {
         MODE_DEFAULT,
         MODE_INTEGER,
@@ -26,13 +23,20 @@ class Session {
         MODE_SYMBOL
     };
 
+    using BeginTokenImpl = bool (*)(Session&, ParserLoopMode&, const char&,
+                                    std::string::const_iterator&,
+                                    std::string::const_iterator&);
+    using FlushFunction = void (*)(Session&, ParserLoopMode&);
+
     Settings settings;
     std::istream& istream;
     OStreamHandler ostream;
     std::ostream& errstream;
-    TokenDeque tokenQueue;
-    OperatorMap mapOper;
+    TokenQueue tokenQueue;
+    FuncSet funcs;
     std::stringstream tokenBuilder;
+
+    bool allowInfix;
 
    public:
     Session(const Settings& settings = Settings::DEFAULT,
@@ -43,26 +47,34 @@ class Session {
 
    private:
     void emptyTokenBuilder();
+    void processCommands(const std::string& expr);
+
+    static bool beginToken__infix(Session& s, ParserLoopMode& loopMode,
+                                  const char& c,
+                                  std::string::const_iterator& it,
+                                  std::string::const_iterator& end);
+    static bool beginToken__RPN(Session& s, ParserLoopMode& loopMode,
+                                const char& c, std::string::const_iterator& it,
+                                std::string::const_iterator& end);
+
+    BeginTokenImpl beginToken;
+
     void flushIntegers(ParserLoopMode& loopMode);
     void flushFloats(ParserLoopMode& loopMode);
-    void flushSymbols__RPN(ParserLoopMode& loopMode);
-    void flushSymbols__infix(ParserLoopMode& loopMode);
+    static void flushSymbols__RPN(Session& s, ParserLoopMode& loopMode);
+    static void flushSymbols__infix(Session& s, ParserLoopMode& loopMode);
+    FlushFunction flushSymbols;
 
    public:
     void loadPackage(const std::string& name);
 
     std::string read();
-    void tokenize__RPN(const std::string& expr);
-    void tokenize__infix(const std::string& expr);
+    void tokenize(const std::string& expr);
     ValueStack evaluateTokens();
     void displayResults(ValueStack&) const;
 
     void rep();
     void repl();
-
-#ifdef DEBUG
-    void printRPNQueue();
-#endif
 };
 
 #endif

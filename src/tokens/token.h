@@ -1,15 +1,15 @@
 #ifndef CALC__TOKENS__TOKEN__H_
 #define CALC__TOKENS__TOKEN__H_
 
-#include <iostream>
-#include <string>
+struct Token {
+    enum TokenCategory : char { CAT_VALUE, CAT_FUNC };
+    const TokenCategory CATEGORY;
 
-#include "../helper/IOutputtable.h"
+   protected:
+    Token(const TokenCategory);
 
-class Token : public IOutputtable {
    public:
-    virtual std::string toString() const = 0;
-    operator std::string() const { return toString(); }
+    operator TokenCategory() const;
 };
 
 #endif

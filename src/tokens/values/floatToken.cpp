@@ -5,18 +5,16 @@
 
 #include "../../math/math.h"
 
-const ValueToken::NumType FloatToken::TYPE_FLOAT{"floating-point"};
+const ValueToken::NumType& FloatToken::TYPE_FLOAT{"Float"};
+
 long double FloatToken::relEpsilon{1e-8L};
 long double FloatToken::absEpsilon{1e-12L};
 
 FloatToken::FloatToken(const long double value,
                        const ValueToken::ValueType valueType)
-    : ValueToken{valueType}, value{value} {}
-
-void FloatToken::outputTo(std::ostream& ostream) const { ostream << value; }
+    : ValueToken{TYPE_FLOAT, valueType}, value{value} {}
 
 double FloatToken::getValue() const { return value; }
-void FloatToken::setValue(double newValue) { value = newValue; }
 
 bool FloatToken::isFinite() const { return std::isfinite(value); }
 bool FloatToken::isInfinite() const { return std::isinf(value); }
@@ -30,10 +28,6 @@ bool FloatToken::isPosInf() const {
 bool FloatToken::isNegInf() const {
     return std::isinf(value) && std::signbit(value);
 };
-
-const ValueToken::NumType& FloatToken::getNumType() const {
-    return FloatToken::TYPE_FLOAT;
-}
 
 FloatToken& FloatToken::operator=(const float newValue) {
     value = newValue;
@@ -51,7 +45,6 @@ FloatToken& FloatToken::operator=(const long double newVal) {
 }
 
 FloatToken::operator long double() { return value; }
-std::string FloatToken::toString() const { return std::to_string(value); }
 
 bool operator==(const FloatToken& a, const FloatToken& b) {
     return math::approxEquals(a.value, b.value, FloatToken::relEpsilon,
@@ -65,16 +58,6 @@ bool operator==(const FloatToken& a, const long double& b) {
 
 bool operator==(const long double& a, const FloatToken& b) {
     return math::approxEquals(a, b.value, FloatToken::relEpsilon,
-                              FloatToken::absEpsilon);
-}
-
-bool FloatToken::isZero() const {
-    return math::approxEquals(value, 0.0L, FloatToken::relEpsilon,
-                              FloatToken::absEpsilon);
-}
-
-bool FloatToken::isUnity() const {
-    return math::approxEquals(value, 1.0L, FloatToken::relEpsilon,
                               FloatToken::absEpsilon);
 }
 

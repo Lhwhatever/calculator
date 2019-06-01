@@ -1,47 +1,44 @@
 #ifndef TOKENS__VALUES__VALUE_TOKEN_H_
 #define TOKENS__VALUES__VALUE_TOKEN_H_
 
+#include <string>
+#include <vector>
+
 #include "../token.h"
 
-class ValueToken : public Token {
-   public:
-    enum ValueType { ASSIGNABLE, VARIABLE, CONSTANT };
+struct ValueToken : public Token {
+    enum ValueType : char { ASSIGNABLE, VARIABLE, CONSTANT };
 
-    class NumType : public IOutputtable {
-        static unsigned short nextId;
-        const unsigned short ID;
+    class NumType;
+    using NumTypeR = std::reference_wrapper<const ValueToken::NumType>;
+
+    class NumType final {
+        static std::vector<NumTypeR> types;
 
        public:
-        const std::string DESCRIPT;
         const static NumType TYPE_UNDEFINED;
+        const unsigned short ID;
+        const std::string NAME;
 
        public:
-        NumType(std::string description);
+        NumType(const std::string& name);
+
+       public:
         NumType(const NumType&) = delete;
+        static const NumType& getById(const unsigned short id);
 
-       public:
-        std::string getDescription() const;
-        unsigned short getId() const;
-        virtual void outputTo(std::ostream&) const override;
-
-        operator std::string() const;
         friend bool operator==(const NumType&, const NumType&);
-
         NumType& operator=(const NumType&) = delete;
     };
 
-   public:
-    const ValueType VALUE_TYPE;
+    const ValueType TYPE_VALUE;
+    const NumType& TYPE_NUM;
 
    protected:
-    ValueToken(const ValueType valueType = ASSIGNABLE);
-    virtual ~ValueToken();
+    ValueToken(const NumType& numType, const ValueType valueType = ASSIGNABLE);
 
    public:
-    virtual const NumType& getNumType() const = 0;
-
-    virtual bool isZero() const = 0;
-    virtual bool isUnity() const = 0;
+    operator ValueType() const;
 };
 
 #endif

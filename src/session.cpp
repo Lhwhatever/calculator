@@ -16,19 +16,25 @@ Session::Session(const Settings& settings, std::istream& istream,
       istream{istream},
       ostream{OStreamHandler{settings, ostream, IOMODE_STD}},
       errstream{errstream},
-      tokenQueue{},
-      tokenBuilder{} {
-    default_packages::add();
+      allowInfix{false},
+      beginToken{settings.exprSyntax == Settings::SYNTAX_INFIX
+                     ? beginToken__infix
+                     : beginToken__RPN},
+      flushSymbols{settings.exprSyntax == Settings::SYNTAX_INFIX
+                       ? flushSymbols__infix
+                       : flushSymbols__RPN} {
+    std::cout << Package::basePackage.NAME;
+    Package::add(Package::basePackage);
 
     for (auto it = Package::packages.begin(), end = Package::packages.end();
-         it != end; it++) {
+         it != end; it++)
         it->second.get().init(settings);
-    }  // init
+    // init
 
     for (auto it = Package::packages.begin(), end = Package::packages.end();
-         it != end; it++) {
+         it != end; it++)
         it->second.get().preload(settings);
-    }  // preload
+    // preload
 
     loadPackage("base");  // load base package
 }
@@ -38,7 +44,7 @@ Session::~Session() {}
 void Session::loadPackage(const std::string& name) {
     auto p = Package::packages.at(name).get();
     p.load(settings);
-    mapOper.merge(p.mapOper);
+    funcs.merge(p.functions);
 }
 
 void Session::emptyTokenBuilder() {
@@ -57,9 +63,10 @@ void Session::flushIntegers(ParserLoopMode& loopMode) {
         return;
     }
 
-    tokenQueue.push_back(std::make_shared<IntegerToken>(data));
+    tokenQueue.push(std::make_shared<IntegerToken>(data));
     emptyTokenBuilder();
     loopMode = MODE_DEFAULT;
+    allowInfix = true;
 }
 
 void Session::flushFloats(ParserLoopMode& loopMode) {
@@ -68,20 +75,44 @@ void Session::flushFloats(ParserLoopMode& loopMode) {
         throw DataOutOfLimitException("long double", std::to_string(data),
                                       tokenBuilder.str());
     }
-    tokenQueue.push_back(std::make_shared<FloatToken>(data));
+    tokenQueue.push(std::make_shared<FloatToken>(data));
     emptyTokenBuilder();
     loopMode = MODE_DEFAULT;
+    allowInfix = true;
 }
 
-void Session::flushSymbols__RPN(ParserLoopMode& loopMode) {
-    auto id{tokenBuilder.str()};
-    auto it{mapOper.lower_bound(id)};
-    auto end{mapOper.upper_bound(id)};
+void Session::flushSymbols__RPN(Session& s, ParserLoopMode& loopMode) {
+    auto id{s.tokenBuilder.str()};
+    auto it{s.funcs.opRPN.find(id)};
 
-    if (it == end) throw SyntaxException(id);  // no operators found
-    tokenQueue.push_back(it->second);
-    emptyTokenBuilder();
+    // no operators found
+    if (it == s.funcs.opRPN.end()) throw SyntaxException(id);
+
+    s.tokenQueue.push(it->second);
+    s.emptyTokenBuilder();
     loopMode = MODE_DEFAULT;
+    s.allowInfix = false;
+}
+
+void Session::flushSymbols__infix(Session& s, ParserLoopMode& loopMode) {
+    auto id{s.tokenBuilder.str()};
+
+    // check either prefix map or infix map
+    auto& map1{s.allowInfix ? s.funcs.opInfix : s.funcs.opPrefix};
+    auto it1{map1.find(id)};
+    if (it1 == map1.end()) {
+        // not in this map; check postfix map
+        auto it2{s.funcs.opPostfix.find(id)};
+        if (it2 == s.funcs.opPostfix.end())
+            throw SyntaxException("no operator with symbol " + id +
+                                  " was found");
+        s.tokenQueue.push(it2->second);
+    } else
+        s.tokenQueue.push(it1->second);
+
+    s.emptyTokenBuilder();
+    loopMode = MODE_DEFAULT;
+    s.allowInfix = false;
 }
 
 std::string Session::read() {
@@ -104,61 +135,73 @@ std::string Session::read() {
     return ss.str();
 }
 
-void Session::tokenize__RPN(const std::string& expr) {
+void Session::processCommands(const std::string& expr) {
+    if (expr == ":q") throw InterruptException();
+    if (expr == ":q!") throw InterruptException(true);
+}
+
+bool Session::beginToken__infix(Session& s, ParserLoopMode& loopMode,
+                                const char& c, std::string::const_iterator& it,
+                                std::string::const_iterator& end) {
+    if (strchop::isNumeric(c)) loopMode = MODE_INTEGER;
+
+    // for suspected floats
+    else if (c == s.settings.decimalSign) {
+        auto next = it + 1;
+
+        if (next != end && strchop::isNumeric(*next)) {  // float
+            s.tokenBuilder << '.';
+            loopMode = MODE_FLOAT;
+            return true;
+        } else  // not float
+            loopMode = MODE_SYMBOL;
+    }
+
+    else if (strchop::isSymbolic(c))
+        loopMode = MODE_SYMBOL;
+    else if (strchop::isWhitespace(c))
+        return true;
+
+    return false;
+}
+
+bool Session::beginToken__RPN(Session& s, ParserLoopMode& loopMode,
+                              const char& c, std::string::const_iterator& it,
+                              std::string::const_iterator& end) {
+    if (s.settings.exprSyntax == Settings::SYNTAX_RPN && c == '-') {
+        s.tokenBuilder << c;
+        auto next{it + 1};
+
+        // minus sign
+        if (next == end) {
+            loopMode = MODE_SYMBOL;
+            return true;
+        }
+
+        // negative number
+        if (strchop::isNumeric(*next)) {
+            loopMode = MODE_INTEGER;
+            return true;
+        }
+
+        // can't be negative float
+        if (*next != s.settings.decimalSign) loopMode = MODE_SYMBOL;
+        return true;
+    }
+    return beginToken__infix(s, loopMode, c, it, end);
+}
+
+void Session::tokenize(const std::string& expr) {
     ParserLoopMode loopMode{MODE_DEFAULT};
     emptyTokenBuilder();
 
     auto it = expr.cbegin();
-    if (*it == ':') {
-        if (expr == ":q") throw InterruptException();
-        if (expr == ":q!") throw InterruptException(true);
-    }
+    if (*it == ':') processCommands(expr);
 
     for (auto end = expr.cend(); it != end; ++it) {
         const char& c{*it};
-
-        if (loopMode == MODE_DEFAULT) {
-            if (strchop::isNumeric(c)) loopMode = MODE_INTEGER;
-
-            // for suspected floats
-            else if (c == settings.decimalSign) {
-                auto next = it + 1;
-
-                if (next != end && strchop::isNumeric(*next)) {  // float
-                    tokenBuilder << '.';
-                    loopMode = MODE_FLOAT;
-                    continue;
-                } else  // not float
-                    loopMode = MODE_SYMBOL;
-            }
-
-            // for minus sign
-            else if (settings.exprSyntax == Settings::SYNTAX_RPN && c == '-') {
-                tokenBuilder << c;
-                auto next{it + 1};
-
-                // minus sign
-                if (next == end) {
-                    loopMode = MODE_SYMBOL;
-                    break;
-                }
-
-                // negative number
-                if (strchop::isNumeric(*next)) {
-                    loopMode = MODE_INTEGER;
-                    continue;
-                }
-
-                // can't be negative float
-                if (*next != settings.decimalSign) loopMode = MODE_SYMBOL;
-                continue;
-            }
-
-            else if (strchop::isSymbolic(c))
-                loopMode = MODE_SYMBOL;
-            else if (strchop::isWhitespace(c))
-                continue;
-        }
+        if (loopMode == MODE_DEFAULT && beginToken(*this, loopMode, c, it, end))
+            continue;
 
         switch (loopMode) {
             case MODE_INTEGER:
@@ -239,7 +282,7 @@ void Session::tokenize__RPN(const std::string& expr) {
                     if (strchop::isSymbolic(c))
                         tokenBuilder << c;
                     else {
-                        flushSymbols__RPN(loopMode);
+                        flushSymbols(*this, loopMode);
                         --it;
                     }
                     break;
@@ -259,37 +302,30 @@ void Session::tokenize__RPN(const std::string& expr) {
             flushFloats(loopMode);
             break;
         case MODE_SYMBOL:
-            flushSymbols__RPN(loopMode);
+            flushSymbols(*this, loopMode);
         default:
             break;
     }
+
+    allowInfix = false;
+    tokenQueue.flush();
 }
 
-void Session::tokenize__infix(const std::string& expr) {}
-
 ValueStack Session::evaluateTokens() {
-    TokenDeque queue;
     ValueStack values;
-    if (settings.exprSyntax == Settings::SYNTAX_RPN) {
-        queue = std::move(tokenQueue);
-    }
+    values.reserve(tokenQueue.size());
 
-    values.reserve(queue.size());
+    while (tokenQueue.size()) {
+        auto token{tokenQueue.pop()};
 
-    while (queue.size()) {
-        auto token{queue.front()};
-        queue.pop_front();
+        switch (token->CATEGORY) {
+            case Token::CAT_FUNC:
+                std::static_pointer_cast<FuncToken>(token)->operate(values);
+                break;
 
-        auto value{std::dynamic_pointer_cast<ValueToken>(token)};
-        if (value) {
-            values.push_back(value);
-            continue;
-        }
-
-        auto oper{std::dynamic_pointer_cast<OperatorToken>(token)};
-        if (oper) {
-            oper->operate(values);
-            continue;
+            case Token::CAT_VALUE:
+                values.push_back(std::static_pointer_cast<ValueToken>(token));
+                break;
         }
     }
 
@@ -317,12 +353,7 @@ void Session::rep() {
     bool fail{true};
 
     try {
-        auto x{read()};
-
-        if (settings.exprSyntax == Settings::SYNTAX_RPN)
-            tokenize__RPN(x);
-        else
-            tokenize__infix(x);
+        tokenize(read());
 
         auto values = evaluateTokens();
         displayResults(values);
@@ -368,33 +399,3 @@ void Session::repl() {
             }
         }
 }
-
-#ifdef DEBUG
-void Session::printRPNQueue() {
-    unsigned long size{tokenQueue.size()};
-
-    ostream << "---------- RPN Queue ----------\n"
-            << "No. of elements =  " << size << '\n';
-
-    for (unsigned long i{0}; i < size; i++) {
-        auto token{tokenQueue.front()};
-        tokenQueue.pop_front();
-        tokenQueue.push_back(token);
-        ostream << i << ".\t";
-
-        auto asValue{std::dynamic_pointer_cast<ValueToken>(token)};
-        if (asValue) {
-            ostream << "ValueToken(" << asValue->toString() << ")\n";
-            continue;
-        }
-
-        auto asOp{std::dynamic_pointer_cast<OperatorToken>(token)};
-        if (asOp) {
-            ostream << "OperatorToken(\"" << asOp->getIdentifier() << "\")\n";
-            continue;
-        }
-    }
-
-    ostream << "---------- End Queue ----------\n";
-}
-#endif

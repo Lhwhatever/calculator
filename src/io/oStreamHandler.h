@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "../settings.h"
-#include "../tokens/operators/operatorToken.h"
+#include "../tokens/values/valueToken.h"
 #include "ioModes.h"
 
 class OStreamHandler {

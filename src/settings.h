@@ -6,7 +6,8 @@
 
 struct Settings {
     enum ExprSyntax {
-        SYNTAX_RPN  // reverse Polish notation
+        SYNTAX_RPN,
+        SYNTAX_INFIX  // reverse Polish notation
     };
 
     static const Settings DEFAULT;
@@ -16,7 +17,7 @@ struct Settings {
     const int digitSepInterval;
     const char decimalSign;
 
-    Settings(ExprSyntax exprSyntax = SYNTAX_RPN, char digitSep = '_',
+    Settings(ExprSyntax exprSyntax = SYNTAX_INFIX, char digitSep = '_',
              int digitSepInterval = 3, char decimalSign = '.');
 };
 

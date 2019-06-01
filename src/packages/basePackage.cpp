@@ -1,35 +1,32 @@
-#include "../tokens/operators/operatorToken.h"
 #include "../tokens/values/floatToken.h"
 #include "../tokens/values/integerToken.h"
 #include "package.h"
 
 namespace base_func {
 
-auto plus = std::make_shared<OperatorToken>("+", 2, 4, OperatorToken::ASSOC_L);
-auto minus = std::make_shared<OperatorToken>("-", 2, 4, OperatorToken::ASSOC_L);
-auto minus1 =
-    std::make_shared<OperatorToken>("-", 1, 6, OperatorToken::ASSOC_R);
-auto times = std::make_shared<OperatorToken>("*", 2, 5, OperatorToken::ASSOC_L);
-auto divide =
-    std::make_shared<OperatorToken>("/", 2, 5, OperatorToken::ASSOC_L);
+FuncTokenSP add;
+FuncTokenSP subtract;
+FuncTokenSP minus;
+FuncTokenSP multiply;
+FuncTokenSP divide;
 
 }  // namespace base_func
 
+namespace pats {
+const ValueToken::NumType& tInt() { return IntegerToken::TYPE_INTEGER; }
+const ValueToken::NumType& tFloat() { return FloatToken::TYPE_FLOAT; }
+
+NumTypePattern int1{tInt()};
+NumTypePattern float1{tFloat()};
+
+NumTypePattern int_int{tInt(), tInt()};
+NumTypePattern int_float{tInt(), tFloat()};
+NumTypePattern float_int{tFloat(), tInt()};
+NumTypePattern float_float{tFloat(), tFloat()};
+}  // namespace pats
+
 namespace {
 using IntegerTP = std::shared_ptr<IntegerToken>;
-
-namespace pats {
-auto& tint{IntegerToken::TYPE_INTEGER};
-auto& tfloat{FloatToken::TYPE_FLOAT};
-
-NumTypePattern int1{tint};
-NumTypePattern float1{tfloat};
-
-NumTypePattern int_int{tint, tint};
-NumTypePattern int_float{tint, tfloat};
-NumTypePattern float_int{tfloat, tint};
-NumTypePattern float_float{tfloat, tfloat};
-}  // namespace pats
 
 namespace ops {
 template <typename T>
@@ -39,13 +36,13 @@ void add__(ValueStack& values) {
     auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a + *b;
         values.push_back(a);
         return;
     }
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a + *b;
         values.push_back(b);
         return;
@@ -61,7 +58,7 @@ void add__lm(ValueStack& values) {
     auto a = std::static_pointer_cast<Tl>(values.back());
     values.pop_back();
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a + *b;
         values.push_back(b);
         return;
@@ -77,7 +74,7 @@ void add__ml(ValueStack& values) {
     auto a = std::static_pointer_cast<Tm>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a + *b;
         values.push_back(a);
         return;
@@ -93,13 +90,13 @@ void subtract__(ValueStack& values) {
     auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a - *b;
         values.push_back(a);
         return;
     }
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a - *b;
         values.push_back(b);
         return;
@@ -115,7 +112,7 @@ void subtract__lm(ValueStack& values) {
     auto a = std::static_pointer_cast<Tl>(values.back());
     values.pop_back();
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a - *b;
         values.push_back(b);
         return;
@@ -131,7 +128,7 @@ void subtract__ml(ValueStack& values) {
     auto a = std::static_pointer_cast<Tm>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a - *b;
         values.push_back(a);
         return;
@@ -144,7 +141,7 @@ template <typename T>
 void minus__(ValueStack& values) {
     auto a = std::static_pointer_cast<T>(values.back());
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = -*a;
         values.push_back(a);
         return;
@@ -161,13 +158,13 @@ void multiply__(ValueStack& values) {
     auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a * *b;
         values.push_back(a);
         return;
     }
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a * *b;
         values.push_back(b);
         return;
@@ -183,7 +180,7 @@ void multiply__lm(ValueStack& values) {
     auto a = std::static_pointer_cast<Tl>(values.back());
     values.pop_back();
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a * *b;
         values.push_back(b);
         return;
@@ -199,7 +196,7 @@ void multiply__ml(ValueStack& values) {
     auto a = std::static_pointer_cast<Tm>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a * *b;
         values.push_back(a);
         return;
@@ -215,13 +212,13 @@ void divide__(ValueStack& values) {
     auto a = std::static_pointer_cast<T>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a / *b;
         values.push_back(a);
         return;
     }
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a / *b;
         values.push_back(b);
         return;
@@ -243,13 +240,13 @@ void divide__<IntegerToken>(ValueStack& values) {
         return;
     }
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a / *b;
         values.push_back(a);
         return;
     }
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a / *b;
         values.push_back(b);
         return;
@@ -265,7 +262,7 @@ void divide__lm(ValueStack& values) {
     auto a = std::static_pointer_cast<Tl>(values.back());
     values.pop_back();
 
-    if (b->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (b->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *b = *a / *b;
         values.push_back(b);
         return;
@@ -281,7 +278,7 @@ void divide__ml(ValueStack& values) {
     auto a = std::static_pointer_cast<Tm>(values.back());
     values.pop_back();
 
-    if (a->VALUE_TYPE == ValueToken::ASSIGNABLE) {
+    if (a->TYPE_VALUE == ValueToken::ASSIGNABLE) {
         *a = *a / *b;
         values.push_back(a);
         return;
@@ -295,24 +292,36 @@ namespace {
 using namespace base_func;
 }
 
-void initBasePackage(Package&, const Settings&) {
-    plus->bind(pats::int_int, ops::add__<IntegerToken>);
-    plus->bind(pats::int_float, ops::add__lm<IntegerToken, FloatToken>);
-    plus->bind(pats::float_int, ops::add__ml<FloatToken, IntegerToken>);
-    plus->bind(pats::float_float, ops::add__<FloatToken>);
+void initBasePackage(Package& p, const Settings&) {
+    add = p.createInfixOperator("add", 4, Precedence::ASSOC_L2R, "+");
+    subtract = p.createInfixOperator("subtract", 4, Precedence::ASSOC_L2R, "-");
+    minus = p.createPrefixOperator("minus", 6, "-", "~");
+    multiply = p.createInfixOperator("multiply", 5, Precedence::ASSOC_L2R, "*");
+    divide = p.createInfixOperator("divide", 5, Precedence::ASSOC_L2R, "/");
+}
 
-    minus->bind(pats::int_int, ops::subtract__<IntegerToken>);
-    minus->bind(pats::int_float, ops::subtract__lm<IntegerToken, FloatToken>);
-    minus->bind(pats::float_int, ops::subtract__ml<FloatToken, IntegerToken>);
-    minus->bind(pats::float_float, ops::subtract__<FloatToken>);
+void preloadBasePackage(Package&, const Settings&) {
+    add->bind(pats::int_int, ops::add__<IntegerToken>);
+    add->bind(pats::int_float, ops::add__lm<IntegerToken, FloatToken>);
+    add->bind(pats::float_int, ops::add__ml<FloatToken, IntegerToken>);
+    add->bind(pats::float_float, ops::add__<FloatToken>);
 
-    minus1->bind(pats::int1, ops::minus__<IntegerToken>);
-    minus1->bind(pats::float1, ops::minus__<FloatToken>);
+    subtract->bind(pats::int_int, ops::subtract__<IntegerToken>);
+    subtract->bind(pats::int_float,
+                   ops::subtract__lm<IntegerToken, FloatToken>);
+    subtract->bind(pats::float_int,
+                   ops::subtract__ml<FloatToken, IntegerToken>);
+    subtract->bind(pats::float_float, ops::subtract__<FloatToken>);
 
-    times->bind(pats::int_int, ops::multiply__<IntegerToken>);
-    times->bind(pats::int_float, ops::multiply__lm<IntegerToken, FloatToken>);
-    times->bind(pats::float_int, ops::multiply__ml<FloatToken, IntegerToken>);
-    times->bind(pats::float_float, ops::multiply__<FloatToken>);
+    minus->bind(pats::int1, ops::minus__<IntegerToken>);
+    minus->bind(pats::float1, ops::minus__<FloatToken>);
+
+    multiply->bind(pats::int_int, ops::multiply__<IntegerToken>);
+    multiply->bind(pats::int_float,
+                   ops::multiply__lm<IntegerToken, FloatToken>);
+    multiply->bind(pats::float_int,
+                   ops::multiply__ml<FloatToken, IntegerToken>);
+    multiply->bind(pats::float_float, ops::multiply__<FloatToken>);
 
     divide->bind(pats::int_int, ops::divide__<IntegerToken>);
     divide->bind(pats::int_float, ops::divide__lm<IntegerToken, FloatToken>);
@@ -320,24 +329,9 @@ void initBasePackage(Package&, const Settings&) {
     divide->bind(pats::float_float, ops::divide__<FloatToken>);
 }
 
-void preloadBasePackage(Package& p, const Settings& s) {
-    p.addOperator(plus);
-    p.addOperator(minus);
-
-    // need to change identifier for unary minus for RPN as overloading is not
-    // supported in RPN mode
-    if (s.exprSyntax == Settings::SYNTAX_RPN) minus1->setIdentifier("~");
-    p.addOperator(minus1);
-
-    p.addOperator(times);
-    p.addOperator(divide);
-}
-
 void loadBasePackage(Package&, const Settings&) {}
 
-void reloadBasePackage(Package&, const Settings& s) {
-    minus1->setIdentifier((s.exprSyntax == Settings::SYNTAX_RPN) ? "~" : "-");
-}
+void reloadBasePackage(Package&, const Settings&) {}
 
 }  // namespace
 

@@ -5,12 +5,12 @@
 
 class ArityMismatchException : public SyntaxException {
     const std::string ID;
-    const int EXPECTED;
-    const int RECEIVED;
+    const unsigned int EXPECTED;
+    const unsigned int RECEIVED;
 
    public:
-    ArityMismatchException(std::string identifier, int argsExpected,
-                           int argsReceived, std::string extra = "");
+    ArityMismatchException(std::string identifier, unsigned int argsExpected,
+                           unsigned int argsReceived, std::string extra = "");
     ~ArityMismatchException();
 
     virtual const char* what() const noexcept override;

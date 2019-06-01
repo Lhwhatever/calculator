@@ -13,11 +13,9 @@ void OStreamHandler::flush() const { stream.flush(); }
 
 const OStreamHandler& OStreamHandler::operator<<(
     const ValueToken& token) const {
-    const ValueToken::NumType& numType{token.getNumType()};
-
-    if (numType == IntegerToken::TYPE_INTEGER) {
+    if (token.TYPE_NUM == IntegerToken::TYPE_INTEGER) {
         auto integerToken{static_cast<const IntegerToken*>(&token)};
-        std::string str{integerToken->toString()};
+        std::string str{std::to_string(integerToken->getValue())};
 
         if (SETTINGS.digitSep && SETTINGS.digitSepInterval)
             for (int size = str.size(), i = size - SETTINGS.digitSepInterval,
@@ -29,9 +27,9 @@ const OStreamHandler& OStreamHandler::operator<<(
         return *this;
     }
 
-    if (numType == FloatToken::TYPE_FLOAT) {
+    if (token.TYPE_NUM == FloatToken::TYPE_FLOAT) {
         auto floatToken{static_cast<const FloatToken*>(&token)};
-        std::string str{floatToken->toString()};
+        std::string str{std::to_string(floatToken->getValue())};
 
         if (SETTINGS.digitSep && SETTINGS.digitSepInterval) {
             int pos = str.find('.');

@@ -98,7 +98,9 @@
 			"algorithm": "cpp",
 			"cstdarg": "cpp",
 			"ios": "cpp",
-			"locale": "cpp"
+			"locale": "cpp",
+			"__functional_base_03": "cpp",
+			"unordered_set": "cpp"
 		}
 	}
 }
