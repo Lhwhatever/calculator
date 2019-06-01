@@ -9,11 +9,11 @@ class ShuntingTokenQueue : public TokenQueue {
     using FStack = std::stack<FuncTokenSP>;
 
     FStack fstack;
-    bool shouldPopFStack(FuncTokenSP& newFunc);
+    bool shouldPopFStack(const FuncTokenSP& newFunc);
     void takeFromFStack();
 
    public:
-    virtual void push(FuncTokenSP&) override;
+    virtual void push(const FuncTokenSP&) override;
     virtual void flush() override;
 };
 

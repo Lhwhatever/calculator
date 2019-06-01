@@ -13,9 +13,9 @@ using FunctionMap = std::map<NumTypePattern, Function>;
 
 class FuncToken : public Token {
     FunctionMap map;
-    const std::string& NAME;
 
    public:
+    const std::string& NAME;
     const unsigned int ARITY;
     const Precedence PREC;
 
@@ -34,7 +34,7 @@ class FuncToken : public Token {
     void unbind(const NumTypePattern& pattern);
 
     Errors canOperate(const ValueStack& valueStack);
-    void operate(ValueStack& valueStack);
+    Errors operate(ValueStack& valueStack);
 
     FuncToken& operator=(FuncToken&) = delete;  // can't copy-assign
 

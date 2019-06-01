@@ -9,7 +9,7 @@ Settings::Settings(ExprSyntax syntax, char digitSep, int digitSepInterval,
       digitSep{digitSep},
       digitSepInterval{digitSepInterval},
       decimalSign{decimalSign} {
-        if (!digitSep &&
+    if (!digitSep &&
         (strchop::isAlphanumeric(digitSep) || strchop::isWhitespace(digitSep) ||
          !strchop::isPrintable(digitSep) || digitSep == '+' || digitSep == '-'))
         throw InvalidSettingException{
@@ -33,4 +33,4 @@ Settings::Settings(ExprSyntax syntax, char digitSep, int digitSepInterval,
             "digit separator interval cannot be negative"};
 }
 
-const Settings Settings::DEFAULT{};
+const Settings Settings::DEFAULT;

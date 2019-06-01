@@ -20,7 +20,7 @@ class TokenQueue : public std::queue<TokenSP> {
     TokenSP pop();
 
     void push(ValueTokenSP&&);
-    virtual void push(FuncTokenSP&);
+    virtual void push(const FuncTokenSP&);
     void push(TokenSP&);
     virtual void flush();
 

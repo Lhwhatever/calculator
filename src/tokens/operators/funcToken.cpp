@@ -1,5 +1,7 @@
 #include "funcToken.h"
 
+#include <iostream>
+
 #include "../../except/arityMismatchException.h"
 #include "../../except/noOperationException.h"
 
@@ -35,15 +37,14 @@ FuncToken::Errors FuncToken::canOperate(const ValueStack& valueStack) {
     return ERR_NONE;
 }
 
-void FuncToken::operate(ValueStack& valueStack) {
+FuncToken::Errors FuncToken::operate(ValueStack& valueStack) {
     unsigned int size = valueStack.size();
-    if (size < ARITY) throw ArityMismatchException(NAME, ARITY, size);
+    if (size < ARITY) return ERR_ARITY;
 
     auto pattern{NumTypePattern::inferFrom(valueStack, ARITY)};
     auto it{map.find(pattern)};
-    if (it == map.end())
-        throw NoOperationException(NAME + " has no operation that matches " +
-                                   pattern.repr());
+    if (it == map.end()) return ERR_TYPE;
 
     (it->second)(valueStack);
+    return ERR_NONE;
 }

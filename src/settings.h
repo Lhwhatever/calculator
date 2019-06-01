@@ -17,8 +17,10 @@ struct Settings {
     const int digitSepInterval;
     const char decimalSign;
 
-    Settings(ExprSyntax exprSyntax = SYNTAX_INFIX, char digitSep = '_',
+    Settings(ExprSyntax exprSyntax = SYNTAX_RPN, char digitSep = '_',
              int digitSepInterval = 3, char decimalSign = '.');
+
+    Settings& operator=(const Settings&);
 };
 
 #endif

@@ -9,7 +9,7 @@ TokenSP TokenQueue::pop() {
 }
 
 void TokenQueue::push(ValueTokenSP&& val) { std::queue<TokenSP>::push(val); }
-void TokenQueue::push(FuncTokenSP& ft) { std::queue<TokenSP>::push(ft); }
+void TokenQueue::push(const FuncTokenSP& ft) { std::queue<TokenSP>::push(ft); }
 void TokenQueue::push(TokenSP& op) { std::queue<TokenSP>::push(op); }
 void TokenQueue::flush() {}
 
