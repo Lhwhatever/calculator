@@ -100,6 +100,5 @@ void Package::load(const Settings& s) { onLoad(*this, s); }
 void Package::reload(const Settings& s) { onReload(*this, s); }
 
 bool Package::add(Package& p) {
-    std::cout << p.NAME << '\n';
     return packages.try_emplace(p.NAME, std::ref(p)).second;
 }
