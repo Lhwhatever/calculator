@@ -1,11 +1,11 @@
 #include "tokenizer.h"
-#include "../except/dataOutOfLimitException.h"
 #include "../helper/strchop.h"
 #include "../tokens/values/floatToken.h"
 #include "../tokens/values/integerToken.h"
 
-Tokenizer::Tokenizer(const Settings& s)
+Tokenizer::Tokenizer(const Settings& s, ErrorCode& e)
     : settings{s},
+      errCode{e},
       beginToken{s.exprSyntax == Settings::SYNTAX_RPN ? &beginToken__RPN
                                                       : &beginToken__infix},
       flushSymbols{s.exprSyntax == Settings::SYNTAX_RPN
@@ -26,7 +26,7 @@ void Tokenizer::flushIntegers(TokenQueue& output) {
         tokenBuilder.clear();
         tokenBuilder.str(tokenBuilder.str());
         flushFloats(output);
-        return;
+        if (errCode) return;
     }
 
     output.push(std::make_shared<IntegerToken>(data));
@@ -36,10 +36,11 @@ void Tokenizer::flushIntegers(TokenQueue& output) {
 
 void Tokenizer::flushFloats(TokenQueue& output) {
     long double data;
-    if (!(tokenBuilder >> data))
-        throw DataOutOfLimitException("long double", std::to_string(data),
-                                      tokenBuilder.str());
-
+    if (!(tokenBuilder >> data)) {
+        errCode = DataOutOfLimitError("long double", tokenBuilder.str(),
+                                      std::to_string(data));
+        return;
+    }
     output.push(std::make_shared<FloatToken>(data));
     emptyTokenBuilder();
     allowInfixNext = true;
@@ -77,6 +78,7 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                 auto next{it + 1};
                 if (next == end) {  // not scientific
                     flushIntegers(output);
+                    if (errCode) return;
                     --it;
                 } else if (strchop::isNumeric(*next)) {  // scientific
                     tokenBuilder << 'e';
@@ -85,6 +87,7 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                     auto after{next + 1};
                     if (after == end || !strchop::isNumeric(*after)) {
                         flushIntegers(output);
+                        if (errCode) return;
                         --it;
                     } else {
                         tokenBuilder << 'e' << *next;
@@ -93,10 +96,12 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                     }
                 } else {
                     flushIntegers(output);
+                    if (errCode) return;
                     --it;
                 }
             } else if (c != settings.digitSep) {
                 flushIntegers(output);
+                if (errCode) return;
                 --it;
             }
             break;
@@ -108,6 +113,7 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                 auto next{it + 1};
                 if (next == end) {  // not scientific
                     flushFloats(output);
+                    if (errCode) return;
                     --it;
                 } else if (strchop::isNumeric(*next)) {  // scientific
                     tokenBuilder << 'e';
@@ -116,6 +122,7 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                     auto after{next + 1};
                     if (after == end || !strchop::isNumeric(*after)) {
                         flushFloats(output);
+                        if (errCode) return;
                         --it;
                     } else {
                         tokenBuilder << 'e' << *next;
@@ -124,10 +131,12 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                     }
                 } else {
                     flushFloats(output);
+                    if (errCode) return;
                     --it;
                 }
             } else if (c != settings.digitSep) {
                 flushFloats(output);
+                if (errCode) return;
                 --it;
             }
             break;
@@ -137,6 +146,7 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                 tokenBuilder << c;
             else if (c != settings.digitSep) {
                 flushFloats(output);
+                if (errCode) return;
                 --it;
             }
             break;
@@ -146,6 +156,7 @@ void Tokenizer::tick(const FuncSet& funcs, TokenQueue& output) {
                     tokenBuilder << c;
                 else {
                     (this->*flushSymbols)(funcs, output);
+                    if (errCode) return;
                     --it;
                 }
                 break;
@@ -162,10 +173,10 @@ void Tokenizer::tokenize(const std::string& input, const FuncSet& funcs,
     emptyTokenBuilder();
     allowInfixNext = false;
 
-    it = input.cbegin();
-    end = input.cend();
-
-    for (; it < end; ++it) tick(funcs, output);
+    for (it = input.cbegin(), end = input.cend(); it < end; ++it) {
+        tick(funcs, output);
+        if (errCode) return;
+    }
 
     flushAll(funcs, output);
     output.flush();

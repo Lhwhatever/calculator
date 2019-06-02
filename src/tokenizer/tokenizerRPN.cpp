@@ -1,4 +1,3 @@
-#include "../except/syntaxException.h"
 #include "../helper/strchop.h"
 #include "tokenizer.h"
 
@@ -32,7 +31,10 @@ void Tokenizer::flushSymbols__RPN(const FuncSet& funcs, TokenQueue& output) {
     auto it{funcs.opRPN.find(id)};
 
     // no operators found
-    if (it == funcs.opRPN.end()) throw SyntaxException(id);
+    if (it == funcs.opRPN.end()) {
+        errCode = UnknownOperatorError(id);
+        return;
+    }
 
     output.push(it->second);
     emptyTokenBuilder();

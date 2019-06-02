@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "../../errors/errorWrapped.h"
 #include "../token.h"
 #include "numTypePattern.h"
 #include "precedence.h"
@@ -15,7 +16,7 @@ class FuncToken : public Token {
     FunctionMap map;
 
    public:
-    const std::string& NAME;
+    const std::string NAME;
     const unsigned int ARITY;
     const Precedence PREC;
 
@@ -34,7 +35,7 @@ class FuncToken : public Token {
     void unbind(const NumTypePattern& pattern);
 
     Errors canOperate(const ValueStack& valueStack);
-    Errors operate(ValueStack& valueStack);
+    ErrorCode& operate(ValueStack& valueStack, ErrorCode& errCode);
 
     FuncToken& operator=(FuncToken&) = delete;  // can't copy-assign
 

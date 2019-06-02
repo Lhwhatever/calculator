@@ -1,6 +1,7 @@
 #ifndef CALC__SESSION_H_
 #define CALC__SESSION_H_
 
+#include "errors/errorWrapped.h"
 #include "io/oStreamHandler.h"
 #include "packages/package.h"
 #include "tokenizer/tokenizer.h"
@@ -17,6 +18,7 @@ class Session {
     std::ostream& errstream;
     TokenQueue tokenQueue;
     FuncSet funcs;
+    ErrorCode errCode;
     Tokenizer tokenizer;
 
    public:

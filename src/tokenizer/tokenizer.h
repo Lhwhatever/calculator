@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#include "../errors/errorLib.h"
+#include "../errors/errorWrapped.h"
 #include "../settings.h"
 #include "../tokens/tokenQueue.h"
 
@@ -28,9 +30,10 @@ class Tokenizer {
     bool allowInfixNext;
     LoopMode loopMode;
     const Settings& settings;
+    ErrorCode& errCode;
 
    public:
-    Tokenizer(const Settings& s);
+    Tokenizer(const Settings&, ErrorCode&);
 
    private:
     bool beginToken__RPN();
@@ -44,7 +47,6 @@ class Tokenizer {
     void flushFloats(TokenQueue&);
     FuncFlushSym flushSymbols;
     void flushAll(const FuncSet&, TokenQueue&);
-
     void tick(const FuncSet& funcs, TokenQueue& output);
 
    public:

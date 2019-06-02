@@ -39,6 +39,7 @@ build/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+calculator.code-workspace
 
 # Debug Files
 .debug_time

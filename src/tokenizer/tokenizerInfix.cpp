@@ -1,4 +1,3 @@
-#include "../except/syntaxException.h"
 #include "../helper/strchop.h"
 #include "tokenizer.h"
 
@@ -42,9 +41,10 @@ void Tokenizer::flushSymbols__infix(const FuncSet& funcs, TokenQueue& output) {
     if (it1 == map1.end()) {
         // not in this map; check postfix map
         auto it2{funcs.opPostfix.find(id)};
-        if (it2 == funcs.opPostfix.end())
-            throw SyntaxException("no operator with symbol " + id +
-                                  " was found");
+        if (it2 == funcs.opPostfix.end()) {
+            errCode = UnknownOperatorError(id);
+            return;
+        }
         output.push(it2->second);
     } else
         output.push(it1->second);

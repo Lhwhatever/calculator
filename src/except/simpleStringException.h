@@ -1,5 +1,5 @@
 #ifndef CALC__EXCEPT__SIMPLE_STRING_EXCEPTION_H_
-#define CALC__EXCEPT__SIMPLE_STTRING_EXCEPTION_H_
+#define CALC__EXCEPT__SIMPLE_STRING_EXCEPTION_H_
 
 #include <exception>
 #include <string>

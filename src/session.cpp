@@ -1,10 +1,6 @@
 #include "session.h"
 
-#include "except/arityMismatchException.h"
-#include "except/dataOutOfLimitException.h"
 #include "except/interruptException.h"
-#include "except/noOperationException.h"
-#include "except/syntaxException.h"
 #include "helper/strchop.h"
 #include "packages/package.h"
 #include "tokens/tokenQueueShunting.h"
@@ -20,7 +16,7 @@ Session::Session(const Settings& settings, std::istream& istream,
       tokenQueue{settings.exprSyntax == Settings::SYNTAX_RPN
                      ? TokenQueue()
                      : ShuntingTokenQueue()},
-      tokenizer{settings} {
+      tokenizer{settings, errCode} {
     Package::add(Package::basePackage);
 
     for (auto it = Package::packages.begin(), end = Package::packages.end();
@@ -85,18 +81,12 @@ ValueStack Session::evaluateTokens() {
 
         switch (token->CATEGORY) {
             case Token::CAT_FUNC: {
-                auto ft{std::static_pointer_cast<FuncToken>(token)};
-                auto name{ft->NAME};
-                auto arity{ft->ARITY};
-                switch (ft->operate(values)) {
-                    case FuncToken::ERR_ARITY:
-                        auto size{static_cast<unsigned int>(values.size())};
-                        values.clear();
-                        throw ArityMismatchException(name, arity, size);
-                        break;
-                }
+                if (std::static_pointer_cast<FuncToken>(token)->operate(
+                        values, errCode))
+                    return values;
                 break;
             }
+
             case Token::CAT_VALUE: {
                 values.push_back(std::static_pointer_cast<ValueToken>(token));
                 break;
@@ -110,12 +100,12 @@ ValueStack Session::evaluateTokens() {
 void Session::displayResults(ValueStack& stack) const {
     if (stack.size() == 0) return;
     if (stack.size() == 1) {
-        ostream << *stack[0];
+        ostream << *stack[0] << '\n';
         return;
     }
 
-    if (settings.exprSyntax != Settings::SYNTAX_RPN)
-        throw SyntaxException{"more arguments than required by operators"};
+    /*if (settings.exprSyntax != Settings::SYNTAX_RPN)
+        throw SyntaxException{"more arguments than required by operators"};*/
 
     ostream << '(' << *stack[0];
     for (auto it = ++(stack.cbegin()), end = stack.cend(); it != end; ++it) {
@@ -125,31 +115,22 @@ void Session::displayResults(ValueStack& stack) const {
 }
 
 void Session::rep() {
-    bool fail{true};
-
     try {
         tokenize(read());
 
-        auto values = evaluateTokens();
-        displayResults(values);
-        fail = true;
-    } catch (ArityMismatchException& e) {
-        errstream << "[Error]<Syntax/ArityMismatch> " << e.what();
-    } catch (SyntaxException& e) {
-        errstream << "[Error]<Syntax> " << e.what();
-    } catch (NoOperationException& e) {
-        errstream << "[Error]<No Operation> " << e.what();
-    } catch (InterruptException& e) {
-        throw;
-    } catch (DataOutOfLimitException& e) {
-        errstream << "[Error]<DataOutOfLimit> " << e.what();
-    } catch (std::exception& e) {
-        errstream << "[Error] " << e.what();
-    }
+        auto values{evaluateTokens()};
+        if (errCode) {
+            errstream << errCode << '\n';
+            tokenQueue.clear();
+            errCode.clear();
+            return;
+        }
 
-    if (fail) {
-        errstream << '\n';
-        tokenQueue.clear();
+        displayResults(values);
+    } catch (InterruptException&) {
+        throw;
+    } catch (std::exception& e) {
+        errstream << "[Error] " << e.what() << '\n';
     }
 }
 

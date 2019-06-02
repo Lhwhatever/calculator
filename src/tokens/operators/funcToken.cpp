@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-#include "../../except/arityMismatchException.h"
-#include "../../except/noOperationException.h"
+#include "../../errors/errorLib.h"
 
 FuncToken::FuncToken(const std::string& name, const unsigned int arity,
                      const short precLevel,
@@ -37,14 +36,15 @@ FuncToken::Errors FuncToken::canOperate(const ValueStack& valueStack) {
     return ERR_NONE;
 }
 
-FuncToken::Errors FuncToken::operate(ValueStack& valueStack) {
+ErrorCode& FuncToken::operate(ValueStack& valueStack, ErrorCode& errCode) {
     unsigned int size = valueStack.size();
-    if (size < ARITY) return ERR_ARITY;
+    if (size < ARITY)
+        return errCode = InsufficientArgumentsError(NAME, ARITY, size);
 
     auto pattern{NumTypePattern::inferFrom(valueStack, ARITY)};
     auto it{map.find(pattern)};
-    if (it == map.end()) return ERR_TYPE;
+    if (it == map.end()) return errCode = UnknownOperatorError(NAME);
 
     (it->second)(valueStack);
-    return ERR_NONE;
+    return errCode;
 }
