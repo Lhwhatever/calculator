@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 
         Session ss;
         ss.repl();
-        std::cout << "End of Program";
+        std::cout << "End of Program\n";
     } else
         for (auto i{1}; i < argc; i++) {
             using namespace cliOptions;

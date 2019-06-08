@@ -35,9 +35,9 @@ build/
 
 # VSCode Settings
 .vscode/*
+.vscode/launch.json
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
 calculator.code-workspace
 

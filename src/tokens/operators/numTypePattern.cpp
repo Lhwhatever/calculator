@@ -1,4 +1,5 @@
 #include "numTypePattern.h"
+#include <iostream>
 
 NumTypePattern::NumTypePattern(const unsigned int arity)
     : std::vector<unsigned short>(static_cast<std::size_t>(arity)) {}
@@ -24,7 +25,7 @@ NumTypePattern NumTypePattern::inferFrom(const ValueStack& valueStack,
 }
 
 void NumTypePattern::push_back(const ValueToken::NumType& numType) {
-    std::vector<unsigned short>::emplace_back(numType.ID);
+    // std::vector<unsigned short>::emplace_back(numType.ID); <-- segfault here
 }
 
 std::string NumTypePattern::repr() const {

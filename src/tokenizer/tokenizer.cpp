@@ -6,11 +6,12 @@
 Tokenizer::Tokenizer(const Settings& s, ErrorCode& e)
     : settings{s},
       errCode{e},
-      beginToken{s.exprSyntax == Settings::SYNTAX_RPN ? &beginToken__RPN
-                                                      : &beginToken__infix},
+      beginToken{s.exprSyntax == Settings::SYNTAX_RPN
+                     ? &Tokenizer::beginToken__RPN
+                     : &Tokenizer::beginToken__infix},
       flushSymbols{s.exprSyntax == Settings::SYNTAX_RPN
-                       ? &flushSymbols__RPN
-                       : &flushSymbols__infix} {}
+                       ? &Tokenizer::flushSymbols__RPN
+                       : &Tokenizer::flushSymbols__infix} {}
 
 void Tokenizer::emptyTokenBuilder() {
     tokenBuilder.str("");

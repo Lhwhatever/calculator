@@ -32,4 +32,5 @@ Error& Error::operator=(Error&& e) {
 
 std::ostream& operator<<(std::ostream& ostream, const Error& e) {
     ostream << e.toString();
+    return ostream;
 }
