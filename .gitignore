@@ -48,3 +48,6 @@ calculator.code-workspace
 # Dumps
 *.stackdump
 *.core
+
+# Doxygen-generated files
+docs/

@@ -4,6 +4,7 @@
 #include "session.h"
 #include "settings.h"
 
+#ifndef TEST
 int main(int argc, char* argv[]) {
     if (argc == 1) {
         std::cout << "Calculator application, command line.\n";
@@ -34,6 +35,7 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+#endif
 
 namespace cliOptions {
 void returnVersion() {
