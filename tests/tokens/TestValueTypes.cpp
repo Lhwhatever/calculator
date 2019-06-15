@@ -1,4 +1,4 @@
-#include <CppUTest/TestHarness.h>
+#include "gtest/gtest.h"
 
 #include "ValueToken.h"
 
@@ -7,18 +7,15 @@
  * `ValueType<T>`.
  *
  */
-TEST_GROUP(UnitTest_TestValueTypes){
 
-};
+TEST(UnitTestForValueTypes, IntegerTokensAreAllowed) {
+    EXPECT_TRUE(ValueTypes<refactor::IntegerToken::type>::ALLOWED);
+}
 
-TEST(UnitTest_TestValueTypes, IntegerTokensAreAllowed) {
-    CHECK(ValueTypes<refactor::IntegerToken::type>::ALLOWED);
-};
-
-TEST(UnitTest_TestValueTypes, FloatPtTokensAreAllowed) {
-    CHECK(ValueTypes<refactor::FloatPtToken::type>::ALLOWED);
+TEST(UnitTestForValueTypes, FloatPtTokensAreAllowed) {
+    EXPECT_TRUE(ValueTypes<refactor::FloatPtToken::type>::ALLOWED);
 }
 
 TEST(UnitTest_TestValueTypes, BoolTokensAreNotAllowed) {
-    CHECK(!ValueTypes<bool>::ALLOWED);
+    EXPECT_FALSE(ValueTypes<bool>::ALLOWED);
 }
