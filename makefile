@@ -29,8 +29,8 @@ R_COMPILE_FLAGS =
 R_LINK_FLAGS =
 D_COMPILE_FLAGS = -D DEBUG
 D_LINK_FLAGS =
-T_COMPILE_FLAGS = -D DEBUG -D TEST
-T_LINK_FLAGS = -lCppUTest
+T_COMPILE_FLAGS = -D DEBUG -D TEST -pthread
+T_LINK_FLAGS = -lgtest -lgtest_main -pthread
 
 ######################## escapeseq ########################
 COLOR_RESET = \033[m
@@ -40,6 +40,8 @@ COLOR_DURAT = \033[;4m
 COLOR_FADED = \033[;90m
 COLOR_HEAD = \033[;33;4m
 COLOR_MAJOR = \033[;33m
+
+COLOR_ERROR = \033[;31m
 TAB = \ \ \ \ 
 
 ######################### versioning ########################
@@ -124,7 +126,9 @@ ifeq ($(USE_VERSION), true)
 	@printf " v$(VERSION_STRING) "
 endif
 	@printf "%b" "...$(COLOR_RESET)\n"
+	@rm $(BIN_DIR)/$(TARGET_BIN_NAME)
 	@$(MAKE) all --no-print-directory
+	@$(BIN_DIR)/$(TARGET_BIN_NAME)
 
 all:
 	@echo "$(COLOR_HEAD)Compiling$(COLOR_RESET)"
@@ -156,6 +160,14 @@ clean-dumps:
 	@$(RM) *.core
 	@$(RM) *.stackdump
 	@echo " done"
+
+.PHONY: docs
+docs:
+	@echo "$(COLOR_DESCR)Making docs...$(COLOR_RESET)"
+	@echo "$(COLOR_DESCR)Warning:$(COLOR_RESET) If you see ImportError: cannot import name 'main', run source pyenv/bin/activate first"
+	@cd docs ; \
+	doxygen Doxyfile > doxy.log ; \
+	$(MAKE) html --no-print-directory
 
 $(BIN_DIR)/$(TARGET_BIN_NAME): $(OBJECTS)
 	@echo "\n$(COLOR_HEAD)Linking$(COLOR_RESET)"

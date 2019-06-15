@@ -50,4 +50,10 @@ calculator.code-workspace
 *.core
 
 # Doxygen-generated files
-docs/
+docs/*
+!docs/src/
+!docs/Doxyfile
+!docs/Makefile
+!docs/make.bat
+
+pyenv/

@@ -15,6 +15,14 @@
             "args": [
                 "release"
             ]
+        },
+        {
+            "type": "shell",
+            "label": "generate docs",
+            "command": "make",
+            "args": [
+                "docs"
+            ]
         }
     ],
     "version": "2.0.0"
