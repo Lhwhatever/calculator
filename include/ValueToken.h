@@ -15,17 +15,18 @@ namespace refactor {
 /** @ingroup tokens
  * @brief Concrete class of a value-containing token.
  *
- * Note that in ths implementation, the value stored is immutable.
+ * Note that in ths implementation, the value stored is mutable, unless `T` is
+ * `const`.
  * @tparam T    type of value stored
  */
 template <class T>
 class ValueToken : public AbstractValueToken {
-    static_assert(ValueTypes<T>::ALLOWED && "This type is not allowed");
+    static_assert(ValueTypes<T>::ALLOWED && "This type is not supported");
 
-    const T value;
+    T value;
 
    public:
-    typedef T type; /**< Type of value stored. */
+    using type = T; /**< Type of value stored. */
 
    public:
     /**
@@ -41,30 +42,23 @@ class ValueToken : public AbstractValueToken {
      * @return Stored value.
      */
     const T& getValue() const { return value; };
-
-    /**
-     * @brief Implements the Visitor pattern on `ValueToken`.
-     *
-     * Uses the implementation offered by `AbstractTokenHandler`.
-     */
-    virtual void accept(AbstractTokenHandler&) const override{};
 };
 
 /** @ingroup tokens
  * @brief Token containing an integer value.
  *
  * Implementation of `AbstractValueToken` for integer types. Underlying type
- * used is `long long`.
+ * used is `const long long`.
  */
-using IntegerToken = ValueToken<long long>;
+using IntegerToken = ValueToken<const long long>;
 
 /** @ingroup tokens
  * @brief Token containing a floating-point value.
  *
  * Implementation of `AbstractValueToken` for floating-point types. Underlying
- * type used is `long double`.
+ * type used is `const long double`.
  */
-using FloatPtToken = ValueToken<long double>;
+using FloatPtToken = ValueToken<const long double>;
 
 }  // namespace refactor
 

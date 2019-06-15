@@ -14,7 +14,7 @@ class AbstractTokenHandler;
  */
 class AbstractToken {
    public:
-    /**
+    /*
      * @brief Implements the Visitor pattern on tokens.
      *
      * This member function is called when reading tokens from a queue
@@ -24,7 +24,7 @@ class AbstractToken {
      * @param[in]   handler Concrete instance of `AbstractTokenHandler` that
      * implements `visit()` methods for each subclass of `AbstractToken`.
      */
-    virtual void accept(AbstractTokenHandler& handler) const = 0;
+    // virtual void accept(AbstractTokenHandler& handler) const = 0;
 };
 
 #endif

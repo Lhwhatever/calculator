@@ -10,6 +10,8 @@
  */
 template <class T>
 struct ValueTypes {
+    ValueTypes() = delete; /**< Construction of this struct is not allowed. */
+
     /**
      * @brief States whether this type can be stored.
      *
