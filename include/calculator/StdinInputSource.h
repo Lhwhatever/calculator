@@ -2,6 +2,7 @@
 #define CALC__STDIN_INPUT_SOURCE_H_
 
 #include <iostream>
+#include <string>
 
 #include "calculator/AbstractInputSource.h"
 

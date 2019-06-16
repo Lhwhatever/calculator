@@ -7,5 +7,18 @@ StdinInputSource::StdinInputSource(std::istream& inStream,
 
 InputExpr StdinInputSource::read() {
     err << PROMPT_INPUT;
-    return {};
+    std::string expr;
+
+    while (true) {
+        std::string nextLine;
+        std::getline(in, nextLine);
+        expr += nextLine;
+
+        if (expr.back() != '\\') break;  // no escaped newline
+        expr.pop_back();                 // escaped newline
+    }
+
+    in.clear();
+
+    return expr.c_str();
 }
