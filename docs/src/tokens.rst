@@ -1,10 +1,6 @@
 Tokens
 ======
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
 General
 ----------
 
@@ -23,6 +19,15 @@ Value Tokens
 
 .. doxygenclass:: refactor::ValueToken
     :members:
+
+Value Containers
+^^^^^^^^^^^^^^^^
+
+.. doxygennamespace:: containers
+    :members:
+
+Specialized Value Tokens
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. doxygentypedef:: refactor::IntegerToken
 

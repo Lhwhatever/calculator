@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "ValueToken.h"
+#include "calculator/ValueToken.h"
 
 /** @ingroup unit_tests
  * @brief Tests the attributes of the different possible forms of

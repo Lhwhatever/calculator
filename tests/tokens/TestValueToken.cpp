@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "ValueToken.h"
+#include "calculator/ValueToken.h"
 
 TEST(UnitTestForValueTokens, CanGetValueOfIntegerTokensAfterCreation) {
     refactor::IntegerToken tokenA{20};

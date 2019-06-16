@@ -8,6 +8,7 @@ Welcome to calculator's documentation!
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
    :caption: Contents:
 
    tokens
@@ -18,10 +19,3 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-Docs
-====
-

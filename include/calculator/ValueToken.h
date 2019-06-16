@@ -1,8 +1,8 @@
 #ifndef CALC__VALUE_TOKEN_H_
 #define CALC__VALUE_TOKEN_H_
 
-#include "AbstractToken.h"
-#include "ValueTypes.h"
+#include "calculator/AbstractToken.h"
+#include "calculator/ValueTypes.h"
 
 /** @ingroup tokens
  * @brief A token that contains a value.
@@ -32,7 +32,7 @@ class ValueToken : public AbstractValueToken {
     /**
      * @brief Constructs with the specified value stored.
      *
-     * @param[in]   value   Value to store.
+     * @param   value   Value to store.
      */
     ValueToken(const T& value) : value{value} {};
 
@@ -42,6 +42,13 @@ class ValueToken : public AbstractValueToken {
      * @return Stored value.
      */
     const T& getValue() const { return value; };
+
+    /**
+     * @brief Sets the stored value.
+     *
+     * @param   newValue    Value to store.
+     */
+    void setValue(const T& newValue) { value = newValue; }
 };
 
 /** @ingroup tokens

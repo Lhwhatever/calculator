@@ -1,5 +1,5 @@
 #include "TestValueToken.cpp"
-#include "ValueTokenFactory.h"
+#include "calculator/ValueTokenFactory.h"
 
 TEST(UnitTestForTokenFactories, WhenValidStringGivenCreateIntegerToken) {
     auto factory{std::make_unique<ValueTokenFactory<refactor::IntegerToken>>()};
