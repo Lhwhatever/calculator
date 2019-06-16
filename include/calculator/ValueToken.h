@@ -51,21 +51,11 @@ class ValueToken : public AbstractValueToken {
     void setValue(const T& newValue) { value = newValue; }
 };
 
-/** @ingroup tokens
- * @brief Token containing an integer value.
- *
- * Implementation of `AbstractValueToken` for integer types. Underlying type
- * used is `const long long`.
- */
-using IntegerToken = ValueToken<const long long>;
-
-/** @ingroup tokens
- * @brief Token containing a floating-point value.
- *
- * Implementation of `AbstractValueToken` for floating-point types. Underlying
- * type used is `const long double`.
- */
-using FloatPtToken = ValueToken<const long double>;
+using IntegerToken =
+    ValueToken<const ValueT::IntegerT>; /**< Implementation of integers */
+using FloatPtToken =
+    ValueToken<const ValueT::RealNumT>; /**< Implementation of floating-point
+                                           values */
 
 }  // namespace refactor
 

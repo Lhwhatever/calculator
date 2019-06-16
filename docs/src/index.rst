@@ -11,6 +11,7 @@ Welcome to calculator's documentation!
    :numbered:
    :caption: Contents:
 
+   value_t
    tokens
 
 

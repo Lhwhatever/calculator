@@ -1,4 +1,4 @@
-#include "SymbolicOperatorToken.h"
+#include "calculator/SymbolicOperatorToken.h"
 
 SymbolicOperatorToken::SymbolicOperatorToken(const std::string& sym)
     : symbol{sym} {}

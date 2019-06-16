@@ -2,20 +2,14 @@
 
 #include "calculator/ValueToken.h"
 
-/** @ingroup unit_tests
- * @brief Tests the attributes of the different possible forms of
- * `ValueType<T>`.
- *
- */
-
-TEST(UnitTestForValueTypes, IntegerTokensAreAllowed) {
-    EXPECT_TRUE(ValueTypes<refactor::IntegerToken::type>::ALLOWED);
+TEST(UnitTestForValueT, IntegerTokensAreAllowed) {
+    EXPECT_TRUE(ValueTypes<ValueT::IntegerT>::ALLOWED);
 }
 
-TEST(UnitTestForValueTypes, FloatPtTokensAreAllowed) {
-    EXPECT_TRUE(ValueTypes<refactor::FloatPtToken::type>::ALLOWED);
+TEST(UnitTestForValueT, RealNumTokensAreAllowed) {
+    EXPECT_TRUE(ValueTypes<ValueT::RealNumT>::ALLOWED);
 }
 
-TEST(UnitTest_TestValueTypes, BoolTokensAreNotAllowed) {
+TEST(UnitTest_TestValueT, BoolTokensAreNotAllowed) {
     EXPECT_FALSE(ValueTypes<bool>::ALLOWED);
 }

@@ -126,7 +126,7 @@ ifeq ($(USE_VERSION), true)
 	@printf " v$(VERSION_STRING) "
 endif
 	@printf "%b" "...$(COLOR_RESET)\n"
-	@rm $(BIN_DIR)/$(TARGET_BIN_NAME)
+	@rm -f $(BIN_DIR)/$(TARGET_BIN_NAME)
 	@$(MAKE) all --no-print-directory
 	@$(BIN_DIR)/$(TARGET_BIN_NAME)
 
