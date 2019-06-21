@@ -71,8 +71,8 @@ release: export CXXFLAGS := $(CXXFLAGS) $(COMPILE_FLAGS) $(R_COMPILE_FLAGS)
 release: export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS) $(R_LINK_FLAGS)
 debug: export CXXFLAGS := $(CXXFLAGS) $(COMPILE_FLAGS) $(D_COMPILE_FLAGS)
 debug: export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS) $(D_LINK_FLAGS)
-test: export CXXFLAGS := $(CXXFLAGS) $(COMPILE_FLAGS) $(T_COMPILE_FLAGS)
-test: export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS) $(T_LINK_FLAGS)
+testbin: export CXXFLAGS := $(CXXFLAGS) $(COMPILE_FLAGS) $(T_COMPILE_FLAGS)
+testbin: export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS) $(T_LINK_FLAGS)
 
 release: export SRCS := $(SRC_DIR)
 release: export BUILD_DIR := $(R_BUILD_DIR)
@@ -80,12 +80,14 @@ release: export BIN_DIR := $(R_BIN_DIR)
 debug: export SRCS := $(SRC_DIR)
 debug: export BUILD_DIR := $(D_BUILD_DIR)
 debug: export BIN_DIR := $(D_BIN_DIR)
-test: export SRCS := $(SRC_DIR) $(TEST_DIR)
-test: export BUILD_DIR := $(T_BUILD_DIR)
+testbin: export SRCS := $(SRC_DIR) $(TEST_DIR)
+testbin: export BUILD_DIR := $(T_BUILD_DIR)
+testbin: export BIN_DIR := $(T_BIN_DIR)
 test: export BIN_DIR := $(T_BIN_DIR)
 
 release: export TARGET_BIN_NAME = $(BIN_NAME)
 debug: export TARGET_BIN_NAME = $(BIN_NAME)
+testbin: export TARGET_BIN_NAME = $(T_BIN_NAME)
 test: export TARGET_BIN_NAME = $(T_BIN_NAME)
 
 SOURCES = $(shell find $(SRCS) -name '*.$(SRC_EXT)' -printf '%T@\t%p\n' \
@@ -119,8 +121,8 @@ endif
 	@printf "%b" "...$(COLOR_RESET)\n"
 	@$(MAKE) all --no-print-directory
 
-.PHONY: test
-test: dirs
+.PHONY: testbin
+testbin: dirs
 	@printf "%b" "$(COLOR_DESCR)Beginning test build"
 ifeq ($(USE_VERSION), true)
 	@printf " v$(VERSION_STRING) "
@@ -128,7 +130,11 @@ endif
 	@printf "%b" "...$(COLOR_RESET)\n"
 	@rm -f $(BIN_DIR)/$(TARGET_BIN_NAME)
 	@$(MAKE) all --no-print-directory
-	@$(BIN_DIR)/$(TARGET_BIN_NAME)
+
+.PHONY: test
+test: testbin
+	@$(BIN_DIR)/$(TARGET_BIN_NAME) ; \
+	exit $$?
 
 all:
 	@echo "$(COLOR_HEAD)Compiling$(COLOR_RESET)"

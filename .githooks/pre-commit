@@ -1,0 +1,55 @@
+make testbin > .compiler-msg 2> /dev/null
+COMPILE_RESULT=$?
+COLOR_RED="\e[1;31m"
+COLOR_MAGENTA="\e[35m"
+COLOR_GREEN="\e[1;32m"
+COLOR_RESET="\e[0m"
+
+COLOR_ERROR=$COLOR_RED
+COLOR_WARN=$COLOR_MAGENTA
+COLOR_SUCCESS=$COLOR_GREEN
+
+echo "Checking for compilation errors and warnings..."
+
+if grep 'error: ' .compiler-msg > /dev/null ; then
+    echo "$(cat .compiler-msg)"
+    echo $COLOR_ERROR"Error in compiling; commit stopped."$COLOR_RESET
+    echo "To commit anyway, use git commit --no-verify or git commit -n"
+    rm .compiler-msg
+    exit $COMPILE_RESULT
+elif grep 'warning: ' .compiler-msg > /dev/null ; then
+    echo "$(cat .compiler-msg)"
+    echo $COLOR_WARN"Warnings in compiling; commit paused."$COLOR_RESET
+    rm .compiler-msg
+    while : ; do
+        printf "Commit anyway? (y/n) "
+        read STILL_COMMIT
+        if [ "$STILL_COMMIT" = 'N' ] || [ "$STILL_COMMIT" = 'n' ] ; then
+            echo "Commit stopped."
+            exit $COMPILE_RESULT
+        elif [ "$STILL_COMMIT" = 'Y' ] || [ "$STILL_COMMIT" = 'y' ] ; then
+            echo "Continue committing."
+            break
+        fi
+    done
+else
+    echo $COLOR_SUCCESS"Compiled with no errors."$COLOR_RESET
+    rm .compiler-msg
+fi
+
+
+echo "Checking for errors in tests..."
+
+bin/test/tester --gtest_color=yes > .test-msg
+TEST_RESULT=$?
+if [ $TEST_RESULT = 0 ] ; then
+    echo $COLOR_SUCCESS"Passed all tests."$COLOR_RESET
+    rm .test-msg
+    exit 0
+else
+    echo "$(cat .test-msg)"
+    rm .test-msg
+    echo $COLOR_RED"Some tests failed. Commit stopped."$COLOR_RESET
+    echo "To commit anyway, use git commit --no-verify or git commit -n"
+    exit $TEST_RESULT
+fi
