@@ -16,6 +16,7 @@ InputExpr StdinInputSource::read() {
 
         if (expr.back() != '\\') break;  // no escaped newline
         expr.pop_back();                 // escaped newline
+        err << PROMPT_CONTINUE;
     }
 
     in.clear();
