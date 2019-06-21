@@ -1,5 +1,6 @@
-make testbin > .compiler-msg 2> /dev/null
-COMPILE_RESULT=$?
+TEST_BIN_NAME="bin/test/tester"
+TEST_BIN_TAGS="--gtest_color=yes"
+
 COLOR_RED="\e[1;31m"
 COLOR_MAGENTA="\e[35m"
 COLOR_GREEN="\e[1;32m"
@@ -8,6 +9,9 @@ COLOR_RESET="\e[0m"
 COLOR_ERROR=$COLOR_RED
 COLOR_WARN=$COLOR_MAGENTA
 COLOR_SUCCESS=$COLOR_GREEN
+
+make testbin > .compiler-msg 2> /dev/null
+COMPILE_RESULT=$?
 
 echo "Checking for compilation errors and warnings..."
 
@@ -40,7 +44,7 @@ fi
 
 echo "Checking for errors in tests..."
 
-bin/test/tester --gtest_color=yes > .test-msg
+$TEST_BIN_NAME $TEST_BIN_TAGS > .test-msg
 TEST_RESULT=$?
 if [ $TEST_RESULT = 0 ] ; then
     echo $COLOR_SUCCESS"Passed all tests."$COLOR_RESET
