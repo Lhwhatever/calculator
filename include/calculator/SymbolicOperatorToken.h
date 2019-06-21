@@ -10,22 +10,16 @@
  *
  */
 class SymbolicOperatorToken : public AbstractFunctionToken {
-    const std::string symbol;
+   public:
+    const std::string_view symbol; /**< Symbol */
 
    public:
     /**
-     * @brief Creates a token with the given symbol.
+     * @brief Construct a token with the given symbol.
      *
-     * @param[in]   symbol  symbol of the token
+     * @param   symbol  symbol of the token
      */
-    SymbolicOperatorToken(const std::string& symbol);
-
-    /**
-     * @brief Gets the symbol of this token.
-     *
-     * @returns Symbol of the token.
-     */
-    const std::string& getSymbol() const;
+    SymbolicOperatorToken(std::string_view symbol);
 };
 
 #endif

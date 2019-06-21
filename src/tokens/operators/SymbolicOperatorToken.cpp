@@ -1,6 +1,4 @@
 #include "calculator/SymbolicOperatorToken.h"
 
-SymbolicOperatorToken::SymbolicOperatorToken(const std::string& sym)
+SymbolicOperatorToken::SymbolicOperatorToken(const std::string_view sym)
     : symbol{sym} {}
-
-const std::string& SymbolicOperatorToken::getSymbol() const { return symbol; }

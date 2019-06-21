@@ -23,10 +23,9 @@ template <class T>
 class ValueToken : public AbstractValueToken {
     static_assert(ValueTypes<T>::ALLOWED && "This type is not supported");
 
-    T value;
-
    public:
     using type = T; /**< Type of value stored. */
+    T value;        /**< Stored value */
 
    public:
     /**
@@ -35,20 +34,6 @@ class ValueToken : public AbstractValueToken {
      * @param   value   Value to store.
      */
     ValueToken(const T& value) : value{value} {};
-
-    /**
-     * @brief Gets the stored value.
-     *
-     * @return Stored value.
-     */
-    const T& getValue() const { return value; };
-
-    /**
-     * @brief Sets the stored value.
-     *
-     * @param   newValue    Value to store.
-     */
-    void setValue(const T& newValue) { value = newValue; }
 };
 
 using IntegerToken =
