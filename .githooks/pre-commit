@@ -12,7 +12,7 @@ COLOR_SUCCESS=$COLOR_GREEN
 
 SRC_DIRS="(include|src)"
 SRC_EXTS="(c|h|cc|hh|cpp|cxx|hpp)"
-SRC_SEARCH="^$SRC_DIRS\/.*\.$SRC_EXT\$"
+SRC_SEARCH="^$SRC_DIRS\/.*\.$SRC_EXTS\$"
 
 git diff --name-only --cached | egrep $SRC_SEARCH > /dev/null
 if [ $? = 1 ] ; then
