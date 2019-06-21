@@ -9,8 +9,7 @@
 #include <unistd.h>
 #endif
 
-namespace {
-bool isATty(int fileDescriptor) {
+bool io::isATty(int fileDescriptor) {
 #ifdef IS_WINDOWS
     return _isatty(fileDescriptor);
 #elif defined(IS_POSIX)
@@ -19,7 +18,3 @@ bool isATty(int fileDescriptor) {
     return true;
 #endif
 }
-}  // namespace
-
-const bool io::IS_STDIN_REDIRECTED{isATty(0)};
-const bool io::IS_STDOUT_REDIRECTED{isATty(1)};

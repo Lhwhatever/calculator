@@ -30,9 +30,13 @@ TEST(UnitTestStdinInput, CanProperlyReadMultilineInput) {
 
     inStream << "2\\\n+2";
     ASSERT_EQ(input.read(), "2+2");
+    ASSERT_EQ(errStream.str(), "> ... ");
+    errStream.str("");
+    errStream.clear();
 
     inStream << "1\\\n+2\\\n+3";
     ASSERT_EQ(input.read(), "1+2+3");
+    ASSERT_EQ(errStream.str(), "> ... ... ");
 }
 
 TEST(UnitTestStdinInput, CanReadEmptyStrings) {
