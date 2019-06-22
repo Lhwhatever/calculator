@@ -21,3 +21,12 @@ Value Tokens
 .. doxygentypedef:: refactor::IntegerToken
 
 .. doxygentypedef:: refactor::FloatPtToken
+
+Operator Tokens
+---------------
+
+Operator Precedence
+###################
+
+.. doxygenstruct:: refactor::Precedence
+    :members:
