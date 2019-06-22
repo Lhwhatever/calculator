@@ -1,15 +1,15 @@
 #ifndef CALC__ABSTRACT_TOKEN_EMPLACER_H_
 #define CALC__ABSTRACT_TOKEN_EMPLACER_H_
 
+#include <deque>
 #include <memory>
-#include <queue>
 
 #include "calculator/AbstractToken.h"
 
 using TokenPtr = std::shared_ptr<AbstractToken>; /**< Alias for an owning
                                                     pointer to a token */
 using TokenQueue =
-    std::queue<TokenPtr> /**< Alias for a queue containing tokens */;
+    std::deque<TokenPtr> /**< Alias for a queue containing tokens */;
 
 /**
  * @brief Represents an algorithm to emplace tokens
@@ -17,7 +17,7 @@ using TokenQueue =
  */
 class AbstractTokenEmplacer {
    public:
-    AbstractTokenEmplacer() = default; /**< Default constructor */
+    AbstractTokenEmplacer() = default;          /**< Default constructor */
     virtual ~AbstractTokenEmplacer() = default; /**< Default destructor */
 
     AbstractTokenEmplacer(const AbstractTokenEmplacer&) =
@@ -45,7 +45,7 @@ class AbstractTokenEmplacer {
      *
      * @param   token   An owning pointer to the token.
      */
-    virtual void emplace(TokenPtr token) = 0;
+    virtual void emplace(TokenPtr&& token) = 0;
 
     /**
      * @brief Returns the queue after tokenizing.

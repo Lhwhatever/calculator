@@ -24,7 +24,7 @@ class TokenEmplacerForRpn : public AbstractTokenEmplacer {
      *
      * @param   token   An owning pointer to the token.
      */
-    virtual void emplace(TokenPtr token) override;
+    virtual void emplace(TokenPtr&& token) override;
 
     /**
      * @brief Returns the working queue and then empties the working queue.
@@ -33,6 +33,9 @@ class TokenEmplacerForRpn : public AbstractTokenEmplacer {
      * call to `reset()` or `extract()`.
      */
     virtual TokenQueue extract() override;
+
+   private:
+    TokenQueue queue;
 };
 
 #endif

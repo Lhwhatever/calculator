@@ -1,7 +1,9 @@
 #include "calculator/TokenEmplacerForRpn.h"
 
-void TokenEmplacerForRpn::reset() {}
+#include <iostream>
 
-void TokenEmplacerForRpn::emplace(TokenPtr) {}
+void TokenEmplacerForRpn::reset() { queue.clear(); }
 
-TokenQueue TokenEmplacerForRpn::extract() { return {}; }
+void TokenEmplacerForRpn::emplace(TokenPtr&& token) { queue.push_back(token); }
+
+TokenQueue TokenEmplacerForRpn::extract() { return std::move(queue); }
