@@ -23,7 +23,18 @@
             "args": [
                 "docs"
             ]
-        }
+        },
+        {
+            "type": "process",
+            "label": "build and test",
+            "command": "scripts/bnt.sh"
+        },
+        {
+            "type": "shell",
+            "label": "run test",
+            "command": "bin/test/tester",
+            "args": []
+        },
     ],
     "version": "2.0.0"
 }
