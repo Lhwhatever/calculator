@@ -7,53 +7,53 @@ using refactor::Precedence;
 }  // namespace
 
 TEST(UnitTestForPrecedence, PrecedenceWithDiffNominalLvlAreUnequal) {
-    EXPECT_NE(Precedence::l2r(1), Precedence::l2r(2));
-    EXPECT_NE(Precedence::r2l(1), Precedence::r2l(2));
-    EXPECT_NE(Precedence::l2r(1), Precedence::r2l(2));
-    EXPECT_NE(Precedence::r2l(1), Precedence::l2r(2));
+    EXPECT_NE(1_l2r, 2_l2r);
+    EXPECT_NE(1_r2l, 2_r2l);
+    EXPECT_NE(1_l2r, 2_r2l);
+    EXPECT_NE(1_r2l, 2_l2r);
 }
 
 TEST(UnitTestForPrecedence, PrecedenceWithDiffAssocAreUnequal) {
-    EXPECT_NE(Precedence::l2r(1), Precedence::r2l(2));
-    EXPECT_NE(Precedence::l2r(2), Precedence::r2l(1));
-    EXPECT_NE(Precedence::l2r(1), Precedence::r2l(1));
+    EXPECT_NE(1_l2r, 2_r2l);
+    EXPECT_NE(2_l2r, 1_r2l);
+    EXPECT_NE(1_l2r, 1_r2l);
 }
 
 TEST(UnitTestForPrecedence,
      WhenAssocSamePrecedenceWithBiggerNominalLvlIsGreater) {
-    EXPECT_GT(Precedence::l2r(2), Precedence::l2r(1));
-    EXPECT_LT(Precedence::l2r(1), Precedence::l2r(2));
-    EXPECT_GT(Precedence::r2l(2), Precedence::r2l(1));
-    EXPECT_LT(Precedence::r2l(1), Precedence::r2l(2));
-    EXPECT_GT(Precedence::l2r(2), Precedence::r2l(1));
-    EXPECT_LT(Precedence::l2r(1), Precedence::r2l(2));
+    EXPECT_GT(2_l2r, 1_l2r);
+    EXPECT_LT(1_l2r, 2_l2r);
+    EXPECT_GT(2_r2l, 1_r2l);
+    EXPECT_LT(1_r2l, 2_r2l);
+    EXPECT_GT(2_l2r, 1_r2l);
+    EXPECT_LT(1_l2r, 2_r2l);
 }
 
 TEST(UnitTestForPrecedence, WhenNominalLvlSamePrecedenceWithL2RAssocGreater) {
-    EXPECT_GT(Precedence::l2r(1), Precedence::r2l(1));
-    EXPECT_LT(Precedence::r2l(1), Precedence::l2r(1));
+    EXPECT_GT(1_l2r, 1_r2l);
+    EXPECT_LT(1_r2l, 1_l2r);
 }
 
 TEST(UnitTestForPrecedence,
      PrecedenceWithBiggerNominalLvlOrSameLvlGTEAssocIsGTE) {
-    EXPECT_GE(Precedence::l2r(1), Precedence::l2r(1));
-    EXPECT_GE(Precedence::r2l(2), Precedence::l2r(1));
-    EXPECT_GE(Precedence::l2r(2), Precedence::l2r(1));
+    EXPECT_GE(1_l2r, 1_l2r);
+    EXPECT_GE(2_r2l, 1_l2r);
+    EXPECT_GE(2_l2r, 1_l2r);
 
-    EXPECT_GE(Precedence::r2l(1), Precedence::r2l(1));
-    EXPECT_GE(Precedence::l2r(1), Precedence::r2l(1));
-    EXPECT_GE(Precedence::r2l(2), Precedence::r2l(1));
-    EXPECT_GE(Precedence::l2r(2), Precedence::r2l(1));
+    EXPECT_GE(1_r2l, 1_r2l);
+    EXPECT_GE(1_l2r, 1_r2l);
+    EXPECT_GE(2_r2l, 1_r2l);
+    EXPECT_GE(2_l2r, 1_r2l);
 }
 
 TEST(UnitTestForPrecedence,
      PrecedenceWithBiggerNominalLvlOrSameLvlLTEAssocIsLTE) {
-    EXPECT_LE(Precedence::r2l(1), Precedence::r2l(1));
-    EXPECT_LE(Precedence::l2r(0), Precedence::l2r(1));
-    EXPECT_LE(Precedence::r2l(0), Precedence::l2r(1));
+    EXPECT_LE(1_r2l, 1_r2l);
+    EXPECT_LE(0_l2r, 1_l2r);
+    EXPECT_LE(0_r2l, 1_l2r);
 
-    EXPECT_LE(Precedence::l2r(1), Precedence::l2r(1));
-    EXPECT_LE(Precedence::r2l(1), Precedence::l2r(1));
-    EXPECT_LE(Precedence::l2r(0), Precedence::l2r(1));
-    EXPECT_LE(Precedence::r2l(0), Precedence::l2r(1));
+    EXPECT_LE(1_l2r, 1_l2r);
+    EXPECT_LE(1_r2l, 1_l2r);
+    EXPECT_LE(0_l2r, 1_l2r);
+    EXPECT_LE(0_r2l, 1_l2r);
 }
