@@ -2,6 +2,7 @@
 #define CALC__PRECEDENCE_H_
 
 #include <iostream>
+#include <limits>
 
 namespace refactor {
 
@@ -24,60 +25,70 @@ struct Precedence {
      * @brief Creates a `Precedence` instance with left-to-right
      * associativity.
      *
-     * @param   nominalLevel    The nominal precedence level.
+     * @param   nominalLvl  The nominal precedence level.
      * @return  `Precedence` instance with left-to-right associativity.
      */
-    static Precedence l2r(int nominalLevel);
+    constexpr static Precedence l2r(short nominalLvl) noexcept {
+        return {
+            static_cast<unsigned int>(nominalLvl + offsetValueForNominalLvl0)
+                << 1u |
+            maskL2RAssoc};
+    }
 
     /**
      * @brief Creates a `Precedence` instance with right-to-left associativity.
      *
-     * @param   nominalLevel    The nominal precedence level.
+     * @param   nominalLvl  The nominal precedence level.
      * @return  `Precedence` instance with right-to-left associativity.
      */
-    static Precedence r2l(int nominalLevel);
+    constexpr static Precedence r2l(short nominalLvl) noexcept {
+        return {
+            static_cast<unsigned int>(nominalLvl + offsetValueForNominalLvl0)
+            << 1u};
+    }
 
     /**
      * @brief Checks if this is left-to-right associative.
      *
      * @return `true` if left-to-right associative; `false` if otherwise.
      */
-    bool isL2R() const noexcept;
+    constexpr bool isL2R() const noexcept { return val & maskL2RAssoc; };
 
     /**
      * @brief Checks if this is right-to-left associative.
      *
      * @return `true` if right-to-left associative; `false` if otherwise.
      */
-    bool isR2L() const noexcept;
+    constexpr bool isR2L() const noexcept { return !(val & maskL2RAssoc); };
 
    private:
-    int precd;
-    enum class Associativity { L2R = 0, R2L = -1 };
-    Associativity assoc;
+    constexpr static int offsetValueForNominalLvl0 =
+        -std::numeric_limits<short>::min();
 
-    Precedence(int, Associativity);
+    constexpr static unsigned int maskL2RAssoc = 1u;
+
+    unsigned int val;
+
+    constexpr Precedence(unsigned int x) : val{x} {}
 
     friend std::ostream& operator<<(std::ostream&, Precedence);
 
-    friend bool operator==(Precedence, Precedence);
-    friend bool operator!=(Precedence, Precedence);
-
-    friend bool operator>(Precedence, Precedence);
-    friend bool operator<(Precedence, Precedence);
-    friend bool operator>=(Precedence, Precedence);
-    friend bool operator<=(Precedence, Precedence);
+    friend constexpr bool operator==(Precedence, Precedence);
+    friend constexpr bool operator!=(Precedence, Precedence);
+    friend constexpr bool operator>(Precedence, Precedence);
+    friend constexpr bool operator<(Precedence, Precedence);
+    friend constexpr bool operator>=(Precedence, Precedence);
+    friend constexpr bool operator<=(Precedence, Precedence);
 };
 
 std::ostream& operator<<(std::ostream&, Precedence);
 
-bool operator==(Precedence, Precedence);
-bool operator!=(Precedence, Precedence);
-
-bool operator>(Precedence, Precedence);
-bool operator<(Precedence, Precedence);
-bool operator>=(Precedence, Precedence);
-bool operator<=(Precedence, Precedence);
+constexpr bool operator==(Precedence a, Precedence b) { return a.val == b.val; }
+constexpr bool operator!=(Precedence a, Precedence b) { return a.val != b.val; }
+constexpr bool operator>(Precedence a, Precedence b) { return a.val > b.val; }
+constexpr bool operator<(Precedence a, Precedence b) { return a.val < b.val; }
+constexpr bool operator>=(Precedence a, Precedence b) { return a.val >= b.val; }
+constexpr bool operator<=(Precedence a, Precedence b) { return a.val <= b.val; }
 
 }  // namespace refactor
 
