@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <limits>
+#include <stdexcept>
 
 namespace refactor {
 
@@ -89,6 +90,20 @@ constexpr bool operator>(Precedence a, Precedence b) { return a.val > b.val; }
 constexpr bool operator<(Precedence a, Precedence b) { return a.val < b.val; }
 constexpr bool operator>=(Precedence a, Precedence b) { return a.val >= b.val; }
 constexpr bool operator<=(Precedence a, Precedence b) { return a.val <= b.val; }
+
+constexpr Precedence operator"" _l2r(unsigned long long nominalLvl) {
+    if (nominalLvl >
+        static_cast<unsigned long long>(std::numeric_limits<short>::max()))
+        throw std::overflow_error("input larger than short");
+    return Precedence::l2r(static_cast<short>(nominalLvl));
+}
+
+constexpr Precedence operator"" _r2l(unsigned long long nominalLvl) {
+    if (nominalLvl >
+        static_cast<unsigned long long>(std::numeric_limits<short>::max()))
+        throw std::overflow_error("input larger than short");
+    return Precedence::r2l(static_cast<short>(nominalLvl));
+}
 
 }  // namespace refactor
 
