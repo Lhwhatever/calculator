@@ -14,6 +14,14 @@ class AbstractTokenHandler;
  */
 class AbstractToken {
    public:
+    AbstractToken() = default;          /**< Default constructor */
+    virtual ~AbstractToken() = default; /**< Default destructor (virtual) */
+    AbstractToken(const AbstractToken&) = default; /**< Copy constructor */
+    AbstractToken(AbstractToken&&) = default;      /**< Move constructor */
+    AbstractToken& operator=(const AbstractToken&) =
+        default;                                         /**< Copy assignment */
+    AbstractToken& operator=(AbstractToken&&) = default; /**< Move assignment */
+
     /*
      * @brief Implements the Visitor pattern on tokens.
      *
