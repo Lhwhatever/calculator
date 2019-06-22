@@ -23,43 +23,43 @@ make testbin > .compiler-msg 2> /dev/null
 COMPILE_RESULT=$?
 
 echo "Checking for compilation errors and warnings..."
-
-if [ $COMPILE_RESULT = 0 ] ; then
+    
+if grep 'error: ' .compiler-msg > /dev/null ; then
+    echo "$(cat .compiler-msg)"
+    echo $COLOR_ERROR"Error in compiling; commit stopped."$COLOR_RESET
+    echo "To commit anyway, use git commit --no-verify or git commit -n"
+    rm .compiler-msg
+    exit $COMPILE_RESULT
+elif grep 'warning: ' .compiler-msg > /dev/null ; then
+    echo "$(cat .compiler-msg)"
+    echo $COLOR_WARN"Warnings in compiling; commit paused."$COLOR_RESET
+    rm .compiler-msg
+    while : ; do
+        printf "Commit anyway? (y/n) "
+        read STILL_COMMIT
+        if [ "$STILL_COMMIT" = 'N' ] || [ "$STILL_COMMIT" = 'n' ] ; then
+            echo "Commit stopped."
+            exit $COMPILE_RESULT
+        elif [ "$STILL_COMMIT" = 'Y' ] || [ "$STILL_COMMIT" = 'y' ] ; then
+            echo "Continue committing."
+            break
+        fi
+    done
+elif grep 'error: ld ' .compiler-msg > /dev/null ; then
+    echo "$(cat .compiler-msg)"
+    echo $COLOR_ERROR"Error in linking; commit paused."$COLOR_RESET
+    echo "To commit anyway, use git commit --no-verify or git commit -n"
+    rm .compiler-msg
+    exit $COMPILE_RESULT      
+elif [ $COMPILE_RESULT = 0 ] ; then
     echo $COLOR_SUCCESS"Compiled with no errors."$COLOR_RESET
     rm .compiler-msg
 else
     echo "$(cat .compiler-msg)"
-    
-    if grep 'error: ' .compiler-msg > /dev/null ; then
-        echo $COLOR_ERROR"Error in compiling; commit stopped."$COLOR_RESET
-        echo "To commit anyway, use git commit --no-verify or git commit -n"
-        rm .compiler-msg
-        exit $COMPILE_RESULT
-    elif grep 'warning: ' .compiler-msg > /dev/null ; then
-        echo $COLOR_WARN"Warnings in compiling; commit paused."$COLOR_RESET
-        rm .compiler-msg
-        while : ; do
-            printf "Commit anyway? (y/n) "
-            read STILL_COMMIT
-            if [ "$STILL_COMMIT" = 'N' ] || [ "$STILL_COMMIT" = 'n' ] ; then
-                echo "Commit stopped."
-                exit $COMPILE_RESULT
-            elif [ "$STILL_COMMIT" = 'Y' ] || [ "$STILL_COMMIT" = 'y' ] ; then
-                echo "Continue committing."
-                break
-            fi
-        done
-    elif grep 'error: ld ' .compiler-msg > /dev/null ; then
-        echo $COLOR_ERROR"Error in linking; commit paused."$COLOR_RESET
-        echo "To commit anyway, use git commit --no-verify or git commit -n"
-        rm .compiler-msg
-        exit $COMPILE_RESULT
-    else
-        echo $COLOR_ERROR"Unknown error; commit paused."$COLOR_RESET
-        echo "To commit anyway, use git commit --no-verify or git commit -n"
-        rm .compiler-msg
-        exit $COMPILE_RESULT
-    fi
+    echo $COLOR_ERROR"Unknown error; commit paused."$COLOR_RESET
+    echo "To commit anyway, use git commit --no-verify or git commit -n"
+    rm .compiler-msg
+    exit $COMPILE_RESULT
 fi
 
 
