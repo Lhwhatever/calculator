@@ -4,6 +4,7 @@ Tokens
 .. doxygenclass:: AbstractToken
     :members:
 
+.. doxygentypedef:: TokenPtr
 
 .. doxygenclass:: AbstractFunctionToken
     :members:

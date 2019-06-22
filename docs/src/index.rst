@@ -13,6 +13,7 @@ Welcome to calculator's documentation!
 
    value_t
    tokens
+   tokenizer
 
 
 
