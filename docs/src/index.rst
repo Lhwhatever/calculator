@@ -12,6 +12,7 @@ Welcome to calculator's documentation!
    :caption: Contents:
 
    value_t
+   settings
    tokens
    tokenizer
 

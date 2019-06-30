@@ -4,6 +4,7 @@
 #include <string>
 
 #include "calculator/AbstractFunctionToken.h"
+#include "calculator/Precedence.h"
 
 /**
  * @brief Represents operators that can be represented by a symbol (e.g. +, -).

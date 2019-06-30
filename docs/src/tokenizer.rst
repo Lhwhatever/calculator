@@ -10,5 +10,5 @@ Token Emplacer
 .. doxygenclass:: AbstractTokenEmplacer
     :members:
 
-.. doxygenclass:: TokenEmplacerForInline
+.. doxygenclass:: TokenEmplacerForRpn
     :members:
