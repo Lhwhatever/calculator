@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-#include "calculator/FixedPointStringifier.h"
+#include "calculator/FixedPtStringifier.h"
 #include "calculator/Observer.h"
 #include "calculator/Settings.h"
 #include "calculator/ValueToken.h"
@@ -37,7 +37,7 @@ class TokenStringifier : public Observer<const SettingsImpl&> {
 
    private:
     SettingsImpl s;
-    FixedPointStringifier fixedPtStringify;
+    FixedPtStringifier fixedPtStringify;
 };
 
 #endif

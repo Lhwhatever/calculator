@@ -1,4 +1,4 @@
-#include "calculator/FixedPointStringifier.h"
+#include "calculator/FixedPtStringifier.h"
 
 #include <iomanip>
 
@@ -7,7 +7,7 @@
 
 #define ASSIGNER(X) X = s.X
 
-FixedPointStringifier::FixedPointStringifier(const SettingsImpl& s)
+FixedPtStringifier::FixedPtStringifier(const SettingsImpl& s)
     : INITIALIZER(grpBefDecimal),
       INITIALIZER(sepBefDecimal),
       INITIALIZER(decimalPt),
@@ -17,23 +17,23 @@ FixedPointStringifier::FixedPointStringifier(const SettingsImpl& s)
       INITIALIZER(autoPrecisionMaxConsecDigits),
       INITIALIZER(floatFixedPtFixedPrecision) {}
 
-std::string FixedPointStringifier::generateOutputBuffer() const {
+std::string FixedPtStringifier::generateOutputBuffer() const {
     std::string output;
     output.reserve(BUFFER_SIZE);
     return output;
 }
 
-void FixedPointStringifier::formatNegSign(std::string::const_iterator& srcIt,
-                                          std::string& output) const {
+void FixedPtStringifier::formatNegSign(std::string::const_iterator& srcIt,
+                                       std::string& output) const {
     if (*srcIt == '-') {
         output.push_back('-');
         ++srcIt;
     }
 }
 
-void FixedPointStringifier::formatBefDecimal(std::string::const_iterator srcIt,
-                                             std::string::const_iterator srcEnd,
-                                             std::string& output) const {
+void FixedPtStringifier::formatBefDecimal(std::string::const_iterator srcIt,
+                                          std::string::const_iterator srcEnd,
+                                          std::string& output) const {
     auto numDigits{srcEnd - srcIt};
     for (; srcIt != srcEnd; ++srcIt) {
         output.push_back(*srcIt);
@@ -43,9 +43,9 @@ void FixedPointStringifier::formatBefDecimal(std::string::const_iterator srcIt,
     output.erase(output.size() - sepBefDecimal.size());
 }
 
-void FixedPointStringifier::formatAftDecimal(std::string::const_iterator srcIt,
-                                             std::string::const_iterator srcEnd,
-                                             std::string& output) const {
+void FixedPtStringifier::formatAftDecimal(std::string::const_iterator srcIt,
+                                          std::string::const_iterator srcEnd,
+                                          std::string& output) const {
     uint8_t numDigits{};
     if (srcIt == srcEnd) {
         output.push_back('.');
@@ -60,7 +60,7 @@ void FixedPointStringifier::formatAftDecimal(std::string::const_iterator srcIt,
         output.erase(output.size() - sepAftDecimal.size());
 }
 
-void FixedPointStringifier::update(const SettingsImpl& s) {
+void FixedPtStringifier::update(const SettingsImpl& s) {
     ASSIGNER(grpBefDecimal);
     ASSIGNER(sepBefDecimal);
     ASSIGNER(decimalPt);
@@ -71,7 +71,7 @@ void FixedPointStringifier::update(const SettingsImpl& s) {
     ASSIGNER(floatFixedPtFixedPrecision);
 }
 
-std::ostringstream FixedPointStringifier::getFixedPrecisionSStream(int p) {
+std::ostringstream FixedPtStringifier::getFixedPrecisionSStream(int p) {
     std::ostringstream sstream;
     sstream << std::fixed << std::setprecision(p);
     return sstream;

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "calculator/FixedPointStringifier.h"
+#include "calculator/FixedPtStringifier.h"
 #include "calculator/Settings.h"
 
 class UnitTestForFixedPtStringifier : public ::testing::Test {
@@ -9,7 +9,7 @@ class UnitTestForFixedPtStringifier : public ::testing::Test {
 };
 
 TEST_F(UnitTestForFixedPtStringifier, WhenDefaultStringifiesIntegersCorrectly) {
-    FixedPointStringifier stringify{defaultSettings};
+    FixedPtStringifier stringify{defaultSettings};
     EXPECT_EQ(stringify(5LL), "5");
     EXPECT_EQ(stringify(10LL), "10");
     EXPECT_EQ(stringify(-5LL), "-5");
@@ -20,13 +20,13 @@ TEST_F(UnitTestForFixedPtStringifier, WhenDefaultStringifiesIntegersCorrectly) {
 }
 
 TEST_F(UnitTestForFixedPtStringifier, WhenCustomStringifiesIntegersCorrectly) {
-    FixedPointStringifier stringify{
+    FixedPtStringifier stringify{
         SettingsBuilder{}.grpBefDecimal(4).sepBefDecimal(",").make()};
     EXPECT_EQ(stringify(88888L), "8,8888");
 }
 
 TEST_F(UnitTestForFixedPtStringifier, WhenDefaultStringifiesFloatsCorrectly) {
-    FixedPointStringifier stringify{defaultSettings};
+    FixedPtStringifier stringify{defaultSettings};
     EXPECT_EQ(stringify(1.0L), "1.0");
     EXPECT_EQ(stringify(1000.0L), "1 000.0");
     EXPECT_EQ(stringify(-123456.0L), "-123 456.0");
@@ -38,20 +38,20 @@ TEST_F(UnitTestForFixedPtStringifier, WhenDefaultStringifiesFloatsCorrectly) {
 
 TEST_F(UnitTestForFixedPtStringifier, WhenCustomStringifiesFloatsCorrectly) {
     {
-        FixedPointStringifier stringify{SettingsBuilder{}
-                                            .grpBefDecimal(4)
-                                            .sepBefDecimal("'")
-                                            .grpAftDecimal(4)
-                                            .sepAftDecimal("'")
-                                            .decimalPt(",")
-                                            .make()};
+        FixedPtStringifier stringify{SettingsBuilder{}
+                                         .grpBefDecimal(4)
+                                         .sepBefDecimal("'")
+                                         .grpAftDecimal(4)
+                                         .sepAftDecimal("'")
+                                         .decimalPt(",")
+                                         .make()};
         EXPECT_EQ(stringify(88888.88888L), "8'8888,8888'8");
     }
     {
-        FixedPointStringifier stringify{SettingsBuilder{}
-                                            .floatUseAutoPrecision(false)
-                                            .floatFixedPtFixedPrecision(6)
-                                            .make()};
-        EXPECT_EQ(stringify(1.23L), "1.230 000");
+        FixedPtStringifier stringify{SettingsBuilder{}
+                                         .floatUseAutoPrecision(false)
+                                         .floatFixedPtFixedPrecision(6)
+                                         .make()};
+        EXPECT_EQ(stringify(1.2L), "1.200 000");
     }
 }

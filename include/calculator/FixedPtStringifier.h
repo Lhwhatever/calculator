@@ -1,5 +1,5 @@
-#ifndef CALC__FIXED_POINT_STRINGIFER_H_
-#define CALC__FIXED_POINT_STRINGIFIER_H_
+#ifndef CALC__FIXED_PT_STRINGIFER_H_
+#define CALC__FIXED_PT_STRINGIFIER_H_
 
 #include <algorithm>
 #include <cmath>
@@ -14,14 +14,14 @@
  * @brief Expresses a number as a string in fixed-point notation.
  *
  */
-class FixedPointStringifier {
+class FixedPtStringifier {
    public:
     /**
      * @brief Constructs a stringifier with the given settings.
      *
      * @param    settings    Settings to use when formatting.
      */
-    FixedPointStringifier(const SettingsImpl& settings);
+    FixedPtStringifier(const SettingsImpl& settings);
 
     /**
      * @brief Updates the stringifier with the given settings.
