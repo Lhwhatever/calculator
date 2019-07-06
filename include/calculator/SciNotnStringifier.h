@@ -42,8 +42,7 @@ class SciNotnStringifier {
         output.reserve(BUFFER_SIZE);
 
         auto digitsIt{cbegin(digits)};
-        digitsIt = formatPreMantissa(digitsIt, output);
-        digitsIt = formatMantissa(digitsIt, output);
+        digitsIt = formatSignificand(digitsIt, output);
         formatExponent(digitsIt, cend(digits), output);
         return output;
     }
@@ -70,10 +69,8 @@ class SciNotnStringifier {
 
     using StrConstIt = std::string::const_iterator;
 
-    StrConstIt formatPreMantissa(StrConstIt srcBegin,
+    StrConstIt formatSignificand(StrConstIt srcBegin,
                                  std::string& output) const;
-    StrConstIt formatMantissa(StrConstIt srcMantissaBegin,
-                              std::string& output) const;
     void formatExponent(StrConstIt srcItAtExp, StrConstIt srcEnd,
                         std::string& output) const;
 

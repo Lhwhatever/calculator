@@ -24,17 +24,13 @@ void SciNotnStringifier::update(const SettingsImpl& s) {
     ASSIGNER(sciNotnExponent);
 }
 
-StrConstIt SciNotnStringifier::formatPreMantissa(const StrConstIt srcBegin,
+StrConstIt SciNotnStringifier::formatSignificand(const StrConstIt srcBegin,
                                                  std::string& output) const {
     auto srcIt{srcBegin};
     for (; *srcIt != '.'; ++srcIt) output.push_back(*srcIt);
     output += decimalPt;
-    return srcIt + 1;
-}
+    ++srcIt;
 
-StrConstIt SciNotnStringifier::formatMantissa(const StrConstIt srcMantissaStart,
-                                              std::string& output) const {
-    auto srcIt{srcMantissaStart};
     uint8_t sinceLastGrp{};
     while (*srcIt != 'e') {
         output.push_back(*srcIt);
