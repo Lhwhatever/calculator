@@ -10,11 +10,12 @@
 FixedPointStringifier::FixedPointStringifier(const SettingsImpl& s)
     : INITIALIZER(grpBefDecimal),
       INITIALIZER(sepBefDecimal),
+      INITIALIZER(decimalPt),
       INITIALIZER(grpAftDecimal),
       INITIALIZER(sepAftDecimal),
-      INITIALIZER(decimalPt),
-      INITIALIZER(floatPrecisionMode),
-      INITIALIZER(autoPrecisionMaxConsecDigits) {}
+      INITIALIZER(floatUseAutoPrecision),
+      INITIALIZER(autoPrecisionMaxConsecDigits),
+      INITIALIZER(floatFixedPtFixedPrecision) {}
 
 std::string FixedPointStringifier::generateOutputBuffer() const {
     std::string output;
@@ -62,15 +63,15 @@ void FixedPointStringifier::formatAftDecimal(std::string::const_iterator srcIt,
 void FixedPointStringifier::update(const SettingsImpl& s) {
     ASSIGNER(grpBefDecimal);
     ASSIGNER(sepBefDecimal);
+    ASSIGNER(decimalPt);
     ASSIGNER(grpAftDecimal);
     ASSIGNER(sepAftDecimal);
-    ASSIGNER(decimalPt);
-    ASSIGNER(floatPrecisionMode);
+    ASSIGNER(floatUseAutoPrecision);
     ASSIGNER(autoPrecisionMaxConsecDigits);
+    ASSIGNER(floatFixedPtFixedPrecision);
 }
 
-std::ostringstream FixedPointStringifier::getFixedPrecisionSStream(
-    int p) const {
+std::ostringstream FixedPointStringifier::getFixedPrecisionSStream(int p) {
     std::ostringstream sstream;
     sstream << std::fixed << std::setprecision(p);
     return sstream;

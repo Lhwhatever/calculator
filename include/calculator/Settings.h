@@ -9,8 +9,6 @@
  *
  */
 struct SettingsImpl {
-    enum class Precision { AUTO };
-
     // Formatting Settings
 
     /**
@@ -23,6 +21,8 @@ struct SettingsImpl {
     uint8_t grpBefDecimal{3};
     std::string sepBefDecimal{" "}; /**< Separator before decimal point. */
 
+    std::string decimalPt{"."}; /**< Decimal point to use. */
+
     /**
      * @brief Digits per group after decimal point.
      *
@@ -32,6 +32,8 @@ struct SettingsImpl {
      */
     uint8_t grpAftDecimal{3};
     std::string sepAftDecimal{" "}; /**< Separator after decimal point. */
+
+    bool floatUseAutoPrecision{true}; /**< Use auto-precision for floats. */
 
     /**
      * @brief Threshold for auto-precision.
@@ -43,10 +45,11 @@ struct SettingsImpl {
      */
     uint8_t autoPrecisionMaxConsecDigits{4};
 
-    std::string decimalPt{"."}; /**< Decimal point to use. */
-
-    Precision floatPrecisionMode{
-        Precision::AUTO}; /**< Precision mode to use for floats. */
+    /**
+     * @brief Number of decimal places when displaying floats as fixed-point.
+     *
+     */
+    uint8_t floatFixedPtFixedPrecision{4};
 };
 
 /**
@@ -62,9 +65,12 @@ struct SettingsBuilder {
 
     CREATE_OPTION(uint8_t, grpBefDecimal)
     CREATE_OPTION(std::string, sepBefDecimal)
+    CREATE_OPTION(std::string, decimalPt)
     CREATE_OPTION(uint8_t, grpAftDecimal)
     CREATE_OPTION(std::string, sepAftDecimal)
-    CREATE_OPTION(std::string, decimalPt)
+    CREATE_OPTION(bool, floatUseAutoPrecision)
+    CREATE_OPTION(uint8_t, autoPrecisionMaxConsecDigits)
+    CREATE_OPTION(uint8_t, floatFixedPtFixedPrecision)
 
     SettingsImpl make() { return std::move(s); }
 

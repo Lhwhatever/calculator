@@ -59,7 +59,7 @@ class FixedPointStringifier {
                           std::string::const_iterator srcEnd,
                           std::string& output) const;
 
-    std::ostringstream getFixedPrecisionSStream(int precision = 0) const;
+    static std::ostringstream getFixedPrecisionSStream(int precision = 0);
 
     template <typename Integral>
     std::string formatIntegral(Integral num) const {
@@ -73,11 +73,16 @@ class FixedPointStringifier {
     }
 
     template <typename Floating>
+    static std::string getDigitsWithPrecision(Floating num, int precision) {
+        auto sstream{getFixedPrecisionSStream(precision)};
+        sstream << num;
+        return sstream.str();
+    }
+
+    template <typename Floating>
     std::string getDigitsWithAutoPrecision(Floating num) const {
-        auto sstreamRaw{getFixedPrecisionSStream(
-            std::numeric_limits<Floating>::digits10 + 1)};
-        sstreamRaw << num;
-        std::string digitsRaw{sstreamRaw.str()};
+        std::string digitsRaw{getDigitsWithPrecision(
+            num, std::numeric_limits<Floating>::digits10 + 1)};
 
         char repeated{'\0'};
         int precision{}, numConsecDigits{};
@@ -97,9 +102,7 @@ class FixedPointStringifier {
 
             if (ch == repeated) {
                 if (++numConsecDigits <= autoPrecisionMaxConsecDigits) continue;
-                auto sstream{getFixedPrecisionSStream(std::max(1, precision))};
-                sstream << num;
-                return sstream.str();
+                return getDigitsWithPrecision(num, std::max(1, precision));
             }
 
             repeated = '\0';
@@ -111,7 +114,11 @@ class FixedPointStringifier {
 
     template <typename Floating>
     std::string formatFloating(Floating num) const {
-        std::string digits{getDigitsWithAutoPrecision(num)}, output;
+        std::string digits{
+            floatUseAutoPrecision
+                ? getDigitsWithAutoPrecision(num)
+                : getDigitsWithPrecision(num, floatFixedPtFixedPrecision)},
+            output;
         output.reserve(BUFFER_SIZE);
 
         auto it{cbegin(digits)}, decimal{it + digits.find('.')};
@@ -124,12 +131,13 @@ class FixedPointStringifier {
 
     uint8_t grpBefDecimal;
     std::string sepBefDecimal;
+    std::string decimalPt;
     uint8_t grpAftDecimal;
     std::string sepAftDecimal;
-    std::string decimalPt;
 
-    SettingsImpl::Precision floatPrecisionMode;
+    bool floatUseAutoPrecision;
     uint8_t autoPrecisionMaxConsecDigits;
+    uint8_t floatFixedPtFixedPrecision;
 
     constexpr static size_t BUFFER_SIZE{256};
 };

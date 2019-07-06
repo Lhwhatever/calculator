@@ -37,12 +37,21 @@ TEST_F(UnitTestForFixedPtStringifier, WhenDefaultStringifiesFloatsCorrectly) {
 }
 
 TEST_F(UnitTestForFixedPtStringifier, WhenCustomStringifiesFloatsCorrectly) {
-    FixedPointStringifier stringify{SettingsBuilder{}
-                                        .grpBefDecimal(4)
-                                        .sepBefDecimal("'")
-                                        .grpAftDecimal(4)
-                                        .sepAftDecimal("'")
-                                        .decimalPt(",")
-                                        .make()};
-    EXPECT_EQ(stringify(88888.88888L), "8'8888,8888'8");
+    {
+        FixedPointStringifier stringify{SettingsBuilder{}
+                                            .grpBefDecimal(4)
+                                            .sepBefDecimal("'")
+                                            .grpAftDecimal(4)
+                                            .sepAftDecimal("'")
+                                            .decimalPt(",")
+                                            .make()};
+        EXPECT_EQ(stringify(88888.88888L), "8'8888,8888'8");
+    }
+    {
+        FixedPointStringifier stringify{SettingsBuilder{}
+                                            .floatUseAutoPrecision(false)
+                                            .floatFixedPtFixedPrecision(6)
+                                            .make()};
+        EXPECT_EQ(stringify(1.23L), "1.230 000");
+    }
 }
