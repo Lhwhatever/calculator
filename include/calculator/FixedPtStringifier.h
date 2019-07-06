@@ -1,4 +1,4 @@
-#ifndef CALC__FIXED_PT_STRINGIFER_H_
+#ifndef CALC__FIXED_PT_STRINGIFIER_H_
 #define CALC__FIXED_PT_STRINGIFIER_H_
 
 #include <algorithm>
@@ -8,6 +8,7 @@
 #include <sstream>
 #include <type_traits>
 
+#include "calculator/NumFormatter.h"
 #include "calculator/Settings.h"
 
 /**
@@ -63,7 +64,8 @@ class FixedPtStringifier {
 
     template <typename Integral>
     std::string formatIntegral(Integral num) const {
-        std::string digits{std::to_string(num)}, output;
+        std::string output;
+        const std::string digits{std::to_string(num)};
         output.reserve(BUFFER_SIZE);
 
         auto it{cbegin(digits)};
@@ -80,45 +82,27 @@ class FixedPtStringifier {
     }
 
     template <typename Floating>
+    static std::string getDigitsWithMaxPrecision(Floating num) {
+        return getDigitsWithPrecision(
+            num, std::numeric_limits<Floating>::digits10 + 1);
+    }
+
+    template <typename Floating>
     std::string getDigitsWithAutoPrecision(Floating num) const {
-        std::string digitsRaw{getDigitsWithPrecision(
-            num, std::numeric_limits<Floating>::digits10 + 1)};
-
-        char repeated{'\0'};
-        int precision{}, numConsecDigits{};
-        for (auto it{cbegin(digitsRaw) + digitsRaw.find('.') + 1},
-             end{cend(digitsRaw)};
-             it != end; ++it) {
-            auto ch{*it};
-            if (repeated == '\0') {
-                if (ch == '0' || ch == '9') {
-                    repeated = ch;
-                    numConsecDigits = 1;
-                    continue;
-                }
-                ++precision;
-                continue;
-            }
-
-            if (ch == repeated) {
-                if (++numConsecDigits <= autoPrecisionMaxConsecDigits) continue;
-                return getDigitsWithPrecision(num, std::max(1, precision));
-            }
-
-            repeated = '\0';
-            precision += numConsecDigits + 1;
-        }
-
-        return digitsRaw;
+        const std::string rawDigits{getDigitsWithMaxPrecision(num)};
+        const int precision{formatter::deducePrecision(
+            cbegin(rawDigits) + rawDigits.find('.') + 1, cend(rawDigits),
+            autoPrecisionMaxConsecDigits)};
+        return getDigitsWithPrecision(num, precision);
     }
 
     template <typename Floating>
     std::string formatFloating(Floating num) const {
-        std::string digits{
+        const std::string digits{
             floatUseAutoPrecision
                 ? getDigitsWithAutoPrecision(num)
-                : getDigitsWithPrecision(num, floatFixedPtFixedPrecision)},
-            output;
+                : getDigitsWithPrecision(num, floatFixedPtFixedPrecision)};
+        std::string output;
         output.reserve(BUFFER_SIZE);
 
         auto it{cbegin(digits)}, decimal{it + digits.find('.')};

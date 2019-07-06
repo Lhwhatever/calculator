@@ -50,6 +50,12 @@ struct SettingsImpl {
      *
      */
     uint8_t floatFixedPtFixedPrecision{4};
+
+    /**
+     * @brief Exponent to use in scientific notation.
+     *
+     */
+    std::string sciNotnExponent{"e"};
 };
 
 /**
