@@ -52,10 +52,23 @@ struct SettingsImpl {
     uint8_t floatFixedPtFixedPrecision{4};
 
     /**
+     * @brief Omit a `+` sign in exponents.
+     *
+     */
+    bool omitPlusInExponent{false};
+
+    /**
      * @brief Exponent to use in scientific notation.
      *
      */
     std::string sciNotnExponent{"e"};
+
+    /**
+     * @brief Number of significant digits to display in scientific notation.
+     *
+     * Set to 0 for auto precision.
+     */
+    uint8_t sciNotnPrecision{0};
 };
 
 /**
@@ -77,6 +90,10 @@ struct SettingsBuilder {
     CREATE_OPTION(bool, floatUseAutoPrecision)
     CREATE_OPTION(uint8_t, autoPrecisionMaxConsecDigits)
     CREATE_OPTION(uint8_t, floatFixedPtFixedPrecision)
+
+    CREATE_OPTION(bool, omitPlusInExponent)
+    CREATE_OPTION(std::string, sciNotnExponent)
+    CREATE_OPTION(uint8_t, sciNotnPrecision);
 
     SettingsImpl make() { return std::move(s); }
 

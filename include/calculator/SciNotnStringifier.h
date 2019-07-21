@@ -37,7 +37,9 @@ class SciNotnStringifier {
      */
     template <typename Number>
     std::string operator()(Number num) const {
-        const std::string digits{getDigitsWithAutoPrecision(num)};
+        const std::string digits{
+            sciNotnPrecision ? getDigitsWithPrecision(num, sciNotnPrecision)
+                             : getDigitsWithAutoPrecision(num)};
         std::string output;
         output.reserve(BUFFER_SIZE);
 
@@ -78,7 +80,9 @@ class SciNotnStringifier {
     std::string sepAftDecimal;
     std::string decimalPt;
     uint8_t autoPrecisionMaxConsecDigits;
+    bool omitPlusInExponent;
     std::string sciNotnExponent;
+    uint8_t sciNotnPrecision;
 
     const static size_t BUFFER_SIZE{256};
     constexpr static int PRECISION{std::numeric_limits<long double>::digits10};
