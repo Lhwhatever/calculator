@@ -2,9 +2,11 @@
 #define CALC__SCI_NOTN_STRINGIFIER_H_
 
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <sstream>
 
+#include "calculator/DigitsGetter.h"
 #include "calculator/NumFormatter.h"
 #include "calculator/Settings.h"
 
@@ -37,38 +39,20 @@ class SciNotnStringifier {
      */
     template <typename Number>
     std::string operator()(Number num) const {
-        const std::string digits{
-            sciNotnPrecision ? getDigitsWithPrecision(num, sciNotnPrecision)
-                             : getDigitsWithAutoPrecision(num)};
+        const std::string rawDigits{
+            sciNotnPrecision ? digits::sciNotn::get(num, sciNotnPrecision - 1)
+                             : digits::sciNotn::getWithAutoPrecision(
+                                   num, autoPrecisionMaxConsecDigits)};
         std::string output;
         output.reserve(BUFFER_SIZE);
 
-        auto digitsIt{cbegin(digits)};
+        auto digitsIt{cbegin(rawDigits)};
         digitsIt = formatSignificand(digitsIt, output);
-        formatExponent(digitsIt, cend(digits), output);
+        formatExponent(digitsIt, cend(rawDigits), output);
         return output;
     }
 
    private:
-    template <typename Number>
-    static std::string getDigitsWithPrecision(Number num, int precision) {
-        std::ostringstream ss;
-        ss << std::scientific << std::setprecision(precision) << num;
-        return ss.str();
-    }
-
-    template <typename Number>
-    std::string getDigitsWithAutoPrecision(Number num) const {
-        if constexpr (std::is_integral_v<Number>)
-            return getDigitsWithAutoPrecision(static_cast<long double>(num));
-        const auto rawDigits{getDigitsWithPrecision(num, PRECISION)};
-        const auto iterBefMantissa{cbegin(rawDigits) + (num < 0 ? 3 : 2)};
-        const auto precision{formatter::deducePrecision(
-            iterBefMantissa, iterBefMantissa + PRECISION,
-            autoPrecisionMaxConsecDigits)};
-        return getDigitsWithPrecision(num, precision);
-    }
-
     using StrConstIt = std::string::const_iterator;
 
     StrConstIt formatSignificand(StrConstIt srcBegin,
@@ -85,7 +69,6 @@ class SciNotnStringifier {
     uint8_t sciNotnPrecision;
 
     const static size_t BUFFER_SIZE{256};
-    constexpr static int PRECISION{std::numeric_limits<long double>::digits10};
 };
 
 #endif

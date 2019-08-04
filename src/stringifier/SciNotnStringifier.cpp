@@ -1,5 +1,7 @@
 #include "calculator/SciNotnStringifier.h"
 
+#include <iostream>
+
 #define INITIALIZER(X) \
     X { s.X }
 
@@ -31,14 +33,18 @@ void SciNotnStringifier::update(const SettingsImpl& s) {
 StrConstIt SciNotnStringifier::formatSignificand(const StrConstIt srcBegin,
                                                  std::string& output) const {
     auto srcIt{srcBegin};
-    for (; *srcIt != '.'; ++srcIt) output.push_back(*srcIt);
+    for (;;) {
+        auto ch{*srcIt++};
+        if (ch == '.') break;
+        output.push_back(ch);
+    }
     output += decimalPt;
-    ++srcIt;
 
     uint8_t sinceLastGrp{};
-    while (*srcIt != 'e') {
-        output.push_back(*srcIt);
-        ++srcIt;
+    for (;;) {
+        auto ch{*srcIt++};
+        if (ch == 'e') break;
+        output.push_back(ch);
         if (++sinceLastGrp >= grpAftDecimal) {
             output += sepAftDecimal;
             sinceLastGrp = 0;
@@ -48,21 +54,19 @@ StrConstIt SciNotnStringifier::formatSignificand(const StrConstIt srcBegin,
     return srcIt;
 }
 
-void SciNotnStringifier::formatExponent(const StrConstIt srcItAtExp,
+void SciNotnStringifier::formatExponent(const StrConstIt srcItAftExp,
                                         const StrConstIt srcEnd,
                                         std::string& output) const {
     output += sciNotnExponent;
-    auto srcIt{srcItAtExp + 1};
-    if (!omitPlusInExponent || *srcIt != '+')
-        output.push_back(*srcIt);  // sign of exponent
+    auto srcIt{srcItAftExp};
+    auto signOfExp{*srcIt++};
+    if (!omitPlusInExponent || signOfExp != '+') output.push_back(signOfExp);
 
-    while (true) {
-        ++srcIt;
-        if (srcIt == srcEnd) {
+    while (*srcIt == '0')
+        if (++srcIt == srcEnd) {
             output.push_back('0');
             return;
         }
-        if (*srcIt != '0') break;
-    }
+
     output.append(srcIt, srcEnd);
 }

@@ -4,6 +4,19 @@
 #include "calculator/SubjectWrapper.h"
 #include "calculator/ValueT.h"
 
+namespace modes {
+
+/**
+ * @brief Represents possible precision modes in fixed-point notation.
+ *
+ * `DEC_PT`: to a specified number of decimal places
+ * `SIG_FIG`: to a specified number of significant figures
+ * `AUTO`: to the maximum precision that prevents a certain number of
+ * consecutive 0s or 9s from showing
+ */
+enum class FixedPtPrecision { DEC_PT, SIG_FIG, AUTO };
+};  // namespace modes
+
 /**
  * @brief Represents program settings.
  *
@@ -33,15 +46,25 @@ struct SettingsImpl {
     uint8_t grpAftDecimal{3};
     std::string sepAftDecimal{" "}; /**< Separator after decimal point. */
 
-    bool floatUseAutoPrecision{true}; /**< Use auto-precision for floats. */
+    /**
+     * @brief Show leading 0 when expressing a float in fixed-point notation.
+     *
+     */
+    bool floatFixedPtDoLeading0{true};
+
+    /**
+     * @brief Precision mode for floating-point numbers in fixed-point mode.
+     *
+     */
+    modes::FixedPtPrecision floatFixedPtPrecisionMode{
+        modes::FixedPtPrecision::AUTO};
 
     /**
      * @brief Threshold for auto-precision.
      *
      * In auto precision, if at least this number of consecutive zeroes are
      * detected beyond the decimal point, the characters starting from the first
-     * zero are ignored. (Exception: the float will always show at least 1
-     * decimal place.)
+     * zero are ignored. (Exception: will always show at least 1 decimal place.)
      */
     uint8_t autoPrecisionMaxConsecDigits{4};
 
@@ -69,6 +92,13 @@ struct SettingsImpl {
      * Set to 0 for auto precision.
      */
     uint8_t sciNotnPrecision{0};
+
+    /**
+     * @brief Precision level in engineering notation.
+     *
+     * Set to 0 for auto precision.
+     */
+    uint8_t engNotnPrecision{0};
 };
 
 /**
@@ -87,13 +117,15 @@ struct SettingsBuilder {
     CREATE_OPTION(std::string, decimalPt)
     CREATE_OPTION(uint8_t, grpAftDecimal)
     CREATE_OPTION(std::string, sepAftDecimal)
-    CREATE_OPTION(bool, floatUseAutoPrecision)
+    CREATE_OPTION(bool, floatFixedPtDoLeading0)
+    CREATE_OPTION(modes::FixedPtPrecision, floatFixedPtPrecisionMode)
     CREATE_OPTION(uint8_t, autoPrecisionMaxConsecDigits)
     CREATE_OPTION(uint8_t, floatFixedPtFixedPrecision)
 
     CREATE_OPTION(bool, omitPlusInExponent)
     CREATE_OPTION(std::string, sciNotnExponent)
     CREATE_OPTION(uint8_t, sciNotnPrecision);
+    CREATE_OPTION(uint8_t, engNotnPrecision);
 
     SettingsImpl make() { return std::move(s); }
 

@@ -36,22 +36,41 @@ TEST_F(UnitTestForFixedPtStringifier, WhenDefaultStringifiesFloatsCorrectly) {
     EXPECT_EQ(stringify(1.999999L), "2.0");
 }
 
-TEST_F(UnitTestForFixedPtStringifier, WhenCustomStringifiesFloatsCorrectly) {
-    {
-        FixedPtStringifier stringify{SettingsBuilder{}
-                                         .grpBefDecimal(4)
-                                         .sepBefDecimal("'")
-                                         .grpAftDecimal(4)
-                                         .sepAftDecimal("'")
-                                         .decimalPt(",")
-                                         .make()};
-        EXPECT_EQ(stringify(88888.88888L), "8'8888,8888'8");
-    }
-    {
-        FixedPtStringifier stringify{SettingsBuilder{}
-                                         .floatUseAutoPrecision(false)
-                                         .floatFixedPtFixedPrecision(6)
-                                         .make()};
-        EXPECT_EQ(stringify(1.2L), "1.200 000");
-    }
+TEST_F(UnitTestForFixedPtStringifier,
+       WithFormatOptionsStringifiesFloatsCorrectly) {
+    FixedPtStringifier stringify{SettingsBuilder{}
+                                     .grpBefDecimal(4)
+                                     .sepBefDecimal("'")
+                                     .grpAftDecimal(4)
+                                     .sepAftDecimal("'")
+                                     .decimalPt(",")
+                                     .make()};
+    EXPECT_EQ(stringify(88888.88888L), "8'8888,8888'8");
+}
+
+TEST_F(UnitTestForFixedPtStringifier, WithDPPrecisionStringifiesCorrectly) {
+    FixedPtStringifier stringify{
+        SettingsBuilder{}
+            .floatFixedPtPrecisionMode(modes::FixedPtPrecision::DEC_PT)
+            .floatFixedPtFixedPrecision(6)
+            .make()};
+    EXPECT_EQ(stringify(1.2L), "1.200 000");
+}
+
+TEST_F(UnitTestForFixedPtStringifier, WithSFPrecisionStringifiesCorrectly) {
+    FixedPtStringifier stringify{
+        SettingsBuilder{}
+            .floatFixedPtPrecisionMode(modes::FixedPtPrecision::SIG_FIG)
+            .make()};
+    EXPECT_EQ(stringify(0.1L), "0.100 0");
+    EXPECT_EQ(stringify(0.01L), "0.010 00");
+    EXPECT_EQ(stringify(0.0001L), "0.000 100 0");
+    EXPECT_EQ(stringify(0.10001L), "0.100 0");
+    EXPECT_EQ(stringify(-0.1L), "-0.100 0");
+
+    EXPECT_EQ(stringify(1.2L), "1.200");
+    EXPECT_EQ(stringify(200.0L), "200.0");
+
+    EXPECT_EQ(stringify(2048.0L), "2 048");
+    EXPECT_EQ(stringify(42300.0L), "42 300");
 }

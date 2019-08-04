@@ -5,6 +5,52 @@
 
 namespace formatter {
 
+/**
+ * @brief Represents fractional part of a decimal expansion.
+ *
+ */
+class DecimalPart {
+    const int group;
+    const std::string sep;
+    std::string s;
+    int sinceLastSep{};
+
+   public:
+    DecimalPart(int group, const std::string& separator);
+
+    /**
+     * @brief Adds a digit to the fractional part.
+     *
+     * @param digit Digit to add.
+     */
+    void push(char digit);
+
+    /**
+     * @brief Appends a sequence of digits using an iterator pattern.
+     *
+     * @tparam InputIt Type of the iterator
+     * @param itBegin Iterator pointing to the start of the sequence.
+     * @param itEnd Iterator pointing to the end of the sequence.
+     */
+    template <typename InputIt>
+    void append(const InputIt itBegin, const InputIt itEnd) {
+        for (auto it{itBegin}; it != itEnd; ++it) push(*it);
+    }
+
+    /**
+     * @brief Gets the formatted sequence of digits.
+     *
+     * @return std::string The formatted sequence of digits.
+     */
+    std::string get();
+
+    /**
+     * @brief Resets the internal state.
+     *
+     */
+    void reset();
+};
+
 template <typename InputIt>
 inline int deducePrecision(const InputIt rawDigitsIterAftDecimal,
                            const InputIt rawDigitsEnd,

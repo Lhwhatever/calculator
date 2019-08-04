@@ -1,4 +1,5 @@
 #include "calculator/FixedPtStringifier.h"
+#include "calculator/NumFormatter.h"
 
 #include <iomanip>
 
@@ -7,13 +8,18 @@
 
 #define ASSIGNER(X) X = s.X
 
+namespace {
+using StrConstIt = std::string::const_iterator;
+}
+
 FixedPtStringifier::FixedPtStringifier(const SettingsImpl& s)
     : INITIALIZER(grpBefDecimal),
       INITIALIZER(sepBefDecimal),
       INITIALIZER(decimalPt),
       INITIALIZER(grpAftDecimal),
       INITIALIZER(sepAftDecimal),
-      INITIALIZER(floatUseAutoPrecision),
+      INITIALIZER(floatFixedPtDoLeading0),
+      INITIALIZER(floatFixedPtPrecisionMode),
       INITIALIZER(autoPrecisionMaxConsecDigits),
       INITIALIZER(floatFixedPtFixedPrecision) {}
 
@@ -23,7 +29,7 @@ std::string FixedPtStringifier::generateOutputBuffer() const {
     return output;
 }
 
-void FixedPtStringifier::formatNegSign(std::string::const_iterator& srcIt,
+void FixedPtStringifier::formatNegSign(StrConstIt& srcIt,
                                        std::string& output) const {
     if (*srcIt == '-') {
         output.push_back('-');
@@ -31,33 +37,35 @@ void FixedPtStringifier::formatNegSign(std::string::const_iterator& srcIt,
     }
 }
 
-void FixedPtStringifier::formatBefDecimal(std::string::const_iterator srcIt,
-                                          std::string::const_iterator srcEnd,
+void FixedPtStringifier::formatBefDecimal(const StrConstIt srcBegin,
+                                          const StrConstIt srcEnd,
                                           std::string& output) const {
-    auto numDigits{srcEnd - srcIt};
-    for (; srcIt != srcEnd; ++srcIt) {
-        output.push_back(*srcIt);
+    auto srcIt{srcBegin};
+    auto numDigits{srcEnd - srcBegin};
+
+    if (numDigits == 1 && *srcIt == '0') {
+        if (floatFixedPtDoLeading0) output.push_back('0');
+        return;
+    }
+
+    while (srcIt != srcEnd) {
+        output.push_back(*srcIt++);
         if (numDigits-- % grpBefDecimal == 1) output += sepBefDecimal;
     }
 
     output.erase(output.size() - sepBefDecimal.size());
 }
 
-void FixedPtStringifier::formatAftDecimal(std::string::const_iterator srcIt,
-                                          std::string::const_iterator srcEnd,
+void FixedPtStringifier::formatAftDecimal(const StrConstIt srcItAtDecimal,
+                                          const StrConstIt srcEnd,
                                           std::string& output) const {
-    uint8_t numDigits{};
-    if (srcIt == srcEnd) {
-        output.push_back('.');
+    if (srcItAtDecimal == srcEnd) {
         output.push_back('0');
         return;
     }
-    for (++srcIt; srcIt != srcEnd; ++srcIt) {
-        output.push_back(*srcIt);
-        if (++numDigits % grpAftDecimal == 0) output += sepAftDecimal;
-    }
-    if (numDigits % grpAftDecimal == 0)
-        output.erase(output.size() - sepAftDecimal.size());
+    formatter::DecimalPart part{grpAftDecimal, sepAftDecimal};
+    part.append(srcItAtDecimal + 1, srcEnd);
+    output += part.get();
 }
 
 void FixedPtStringifier::update(const SettingsImpl& s) {
@@ -66,13 +74,8 @@ void FixedPtStringifier::update(const SettingsImpl& s) {
     ASSIGNER(decimalPt);
     ASSIGNER(grpAftDecimal);
     ASSIGNER(sepAftDecimal);
-    ASSIGNER(floatUseAutoPrecision);
+    ASSIGNER(floatFixedPtDoLeading0);
+    ASSIGNER(floatFixedPtPrecisionMode);
     ASSIGNER(autoPrecisionMaxConsecDigits);
     ASSIGNER(floatFixedPtFixedPrecision);
-}
-
-std::ostringstream FixedPtStringifier::getFixedPrecisionSStream(int p) {
-    std::ostringstream sstream;
-    sstream << std::fixed << std::setprecision(p);
-    return sstream;
 }
